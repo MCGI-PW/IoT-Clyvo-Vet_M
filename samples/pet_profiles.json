@@ -1,0 +1,98 @@
+{
+  "PET-8921": {
+    "pet_id": "PET-8921",
+    "nome": "Thor",
+    "especie": "canina",
+    "raca": "Buldogue Francês",
+    "sexo": "macho",
+    "castrado": true,
+    "idade_anos": 3.5,
+    "peso_atual_kg": 12.8,
+    "escore_corporal": "sobrepeso_leve",
+    "alergias_conhecidas": ["frango", "picada_de_pulga"],
+    "comorbidades_cronicas": ["dermatite_atopica", "sindrome_braquicefalica"],
+    "historico_vacinal": [
+      {
+        "vacina": "V10 Polivalente",
+        "data_aplicacao": "2025-08-10",
+        "status": "em_dia"
+      },
+      {
+        "vacina": "Antirrábica",
+        "data_aplicacao": "2024-05-12",
+        "status": "atrasada"
+      }
+    ],
+    "medicamentos_continuos": [
+      {
+        "medicamento": "Apoquel 5.4mg",
+        "frequencia": "1 comp a cada 24h",
+        "motivo": "Controle de prurido por atopia"
+      }
+    ],
+    "tutor_nome": "Carolina Mendes",
+    "tutor_telefone": "(11) 98765-4321"
+  },
+  "PET-4102": {
+    "pet_id": "PET-4102",
+    "nome": "Mel",
+    "especie": "felina",
+    "raca": "Siamês",
+    "sexo": "femea",
+    "castrado": true,
+    "idade_anos": 11.0,
+    "peso_atual_kg": 3.8,
+    "escore_corporal": "ideal",
+    "alergias_conhecidas": ["dipirona_injetavel"],
+    "comorbidades_cronicas": ["doenca_renal_cronica_estagio_2"],
+    "historico_vacinal": [
+      {
+        "vacina": "Quádrupla Felina (V4)",
+        "data_aplicacao": "2025-10-04",
+        "status": "em_dia"
+      },
+      {
+        "vacina": "Antirrábica Felina",
+        "data_aplicacao": "2025-10-04",
+        "status": "em_dia"
+      }
+    ],
+    "medicamentos_continuos": [
+      {
+        "medicamento": "Quelante de fósforo",
+        "frequencia": "junto com a ração úmida renal",
+        "motivo": "Controle de hiperfosfatemia na DRC"
+      }
+    ],
+    "tutor_nome": "Rodrigo Silva",
+    "tutor_telefone": "(11) 97123-9876"
+  },
+  "PET-6734": {
+    "pet_id": "PET-6734",
+    "nome": "Bob",
+    "especie": "canina",
+    "raca": "Border Collie",
+    "sexo": "macho",
+    "castrado": false,
+    "idade_anos": 5.0,
+    "peso_atual_kg": 19.5,
+    "escore_corporal": "ideal",
+    "alergias_conhecidas": [],
+    "comorbidades_cronicas": [],
+    "historico_vacinal": [
+      {
+        "vacina": "V8 Polivalente",
+        "data_aplicacao": "2025-02-15",
+        "status": "em_dia"
+      },
+      {
+        "vacina": "Antirrábica",
+        "data_aplicacao": "2025-02-15",
+        "status": "em_dia"
+      }
+    ],
+    "medicamentos_continuos": [],
+    "tutor_nome": "Fernanda Lima",
+    "tutor_telefone": "(11) 99345-6789"
+  }
+}

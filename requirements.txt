@@ -1,0 +1,9 @@
+# Dependências para execução completa com FastAPI e Uvicorn (Opcional, pois o projeto roda 100% nativo com run_server.py)
+fastapi>=0.110.0
+uvicorn>=0.28.0
+pydantic>=2.6.0
+python-multipart>=0.0.9
+
+# Dependências para IA em nuvem / transcrição externa (Opcional)
+# google-genai>=0.1.0
+# openai-whisper

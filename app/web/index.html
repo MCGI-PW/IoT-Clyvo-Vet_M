@@ -1,0 +1,342 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CLYVO VET — ClyvoScribe AI: Inteligência Clínica Ambiental</title>
+  <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+
+  <header>
+    <div class="brand">
+      <div class="brand-icon">🐾</div>
+      <div>
+        <div class="brand-name">CLYVO <span>VET</span></div>
+        <div style="font-size: 0.75rem; color: var(--text-muted);">ClyvoScribe AI • Inteligência Clínica Ambiental</div>
+      </div>
+    </div>
+    <div style="display: flex; gap: 1rem; align-items: center;">
+      <div style="font-size: 0.85rem; color: var(--text-muted); text-align: right;">
+        <strong>Dr. Veterinário(a) Responsável</strong><br>
+        <span style="color: #64748b;">CRMV-SP 45.892</span>
+      </div>
+      <div class="system-status">
+        <div class="pulse-dot"></div>
+        <span>IA Escuta Ativa Pronta</span>
+      </div>
+    </div>
+  </header>
+
+  <main class="container">
+    
+    <!-- Painel Esquerdo: Paciente e Controles de Áudio -->
+    <aside class="sidebar">
+      
+      <!-- Card Paciente -->
+      <div class="card">
+        <div class="card-title">
+          <span>🐕</span> Paciente em Consulta
+        </div>
+        <select id="petSelect" class="pet-selector">
+          <option value="PET-8921">Thor (Buldogue Francês - 3.5 anos)</option>
+          <option value="PET-4102">Mel (Gata Siamês - 11 anos)</option>
+          <option value="PET-6734">Bob (Border Collie - 5 anos)</option>
+        </select>
+
+        <div id="petDetailsBox" class="pet-profile-box">
+          <div class="pet-header">
+            <div id="petAvatar" class="pet-avatar">🐶</div>
+            <div>
+              <h3 id="petName" style="font-size: 1.05rem; font-weight: 700;">Thor</h3>
+              <p id="petBreed" style="color: var(--text-muted); font-size: 0.8rem;">Buldogue Francês • Canina • Macho</p>
+            </div>
+          </div>
+          <div class="grid-2">
+            <div><strong>Peso:</strong> <span id="petWeight">12.8 kg</span></div>
+            <div><strong>Idade:</strong> <span id="petAge">3.5 anos</span></div>
+          </div>
+          <div style="margin-top: 0.5rem;">
+            <strong>Comorbidades:</strong> <span id="petComorbidities" style="color: #b91c1c;">Dermatite Atópica</span>
+          </div>
+          <div style="margin-top: 0.25rem;">
+            <strong>Vacinas:</strong> <span id="petVaccineStatus" class="pet-badge badge-alert">Antirrábica Atrasada</span>
+          </div>
+          <div style="margin-top: 0.5rem; font-size: 0.8rem; color: var(--text-muted); border-top: 1px dashed var(--border); padding-top: 0.4rem;">
+            <strong>Tutor(a):</strong> <span id="petTutor">Carolina Mendes</span> • <span id="petPhone">(11) 98765-4321</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Card Áudio e Escuta -->
+      <div class="card">
+        <div class="card-title">
+          <span>🎙️</span> Captura da Consulta
+        </div>
+        
+        <div class="audio-panel">
+          <!-- Visualizador de Áudio -->
+          <div id="visualizerBox" class="visualizer-box">
+            <div class="wave-bars">
+              <div class="bar"></div>
+              <div class="bar"></div>
+              <div class="bar"></div>
+              <div class="bar"></div>
+              <div class="bar"></div>
+              <div class="bar"></div>
+              <div class="bar"></div>
+              <div class="bar"></div>
+            </div>
+            <div id="visualizerText" class="visualizer-status">Aguardando início do atendimento...</div>
+          </div>
+
+          <!-- Botões de Controle -->
+          <div style="display: flex; flex-direction: column; gap: 0.5rem;">
+            <button id="btnMicToggle" class="btn btn-danger">
+              <span>🔴</span> Iniciar Escuta (Microfone)
+            </button>
+            <div style="text-align: center; font-size: 0.75rem; color: var(--text-muted); margin: 0.2rem 0;">— ou carregue um caso gravado para teste —</div>
+            <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 0.35rem;">
+              <button class="btn btn-outline sample-btn" data-case="CASE-THOR-OTITE" style="font-size: 0.75rem; padding: 0.5rem;">
+                Thor (Otite)
+              </button>
+              <button class="btn btn-outline sample-btn" data-case="CASE-MEL-RENAL" style="font-size: 0.75rem; padding: 0.5rem;">
+                Mel (Renal)
+              </button>
+              <button class="btn btn-outline sample-btn" data-case="CASE-BOB-COLLIE" style="font-size: 0.75rem; padding: 0.5rem;">
+                Bob (MDR1)
+              </button>
+            </div>
+          </div>
+
+          <!-- Botão de Processamento -->
+          <button id="btnProcessAI" class="btn btn-primary" style="margin-top: 0.5rem;">
+            <span>⚡</span> Processar Consulta com ClyvoScribe AI
+          </button>
+        </div>
+      </div>
+
+      <!-- Card Guia Rápido -->
+      <div class="card" style="font-size: 0.8rem; color: var(--text-muted);">
+        <strong style="color: var(--dark);">💡 Dica para a Avaliação / Pitch:</strong>
+        <p style="margin-top: 0.3rem;">
+          Clique em qualquer botão de caso (ex: <strong>Thor</strong> ou <strong>Mel</strong>) e em seguida em <strong>Processar Consulta</strong> para demonstrar instantaneamente a geração do SOAP, alertas de risco de raça e guia do tutor!
+        </p>
+      </div>
+
+    </aside>
+
+    <!-- Painel Direito: Espaço de Trabalho Inteligente -->
+    <section class="main-content">
+      
+      <div class="card">
+        <!-- Navegação de Abas -->
+        <div class="tabs-nav">
+          <button class="tab-btn active" data-tab="tab-soap">📋 Prontuário SOAP (Veterinário)</button>
+          <button class="tab-btn" data-tab="tab-alerts">
+            ⚠️ Alertas Clínicos <span id="alertCountBadge" style="background:#ef4444; color:white; font-size:0.7rem; padding:1px 5px; border-radius:10px; margin-left:4px;">0</span>
+          </button>
+          <button class="tab-btn" data-tab="tab-tutor">📱 Visão do Tutor (WhatsApp)</button>
+          <button class="tab-btn" data-tab="tab-clinic">💼 Gestão da Clínica & Receita</button>
+          <button class="tab-btn" data-tab="tab-transcript">🎙️ Transcrição ASR</button>
+        </div>
+
+        <!-- Indicador de Carregamento -->
+        <div id="loadingIndicator" style="display: none; text-align: center; padding: 3rem;">
+          <div style="font-size: 2.5rem; animation: spin 1s infinite linear;">⚙️</div>
+          <h3 style="margin-top: 0.75rem; color: var(--primary);">ClyvoScribe AI Processando...</h3>
+          <p style="color: var(--text-muted); font-size: 0.9rem;">
+            Estruturando SOAP, auditando contraindicações raciais e gerando guia personalizado.
+          </p>
+        </div>
+
+        <!-- Conteúdo das Abas -->
+        <div id="tabContentArea">
+          
+          <!-- Aba 1: Prontuário SOAP -->
+          <div id="tab-soap" class="tab-pane active">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+              <div>
+                <h2 style="font-size: 1.15rem; font-weight: 800;">Minuta de Prontuário Clínico Automatizada</h2>
+                <span id="consultationIdBadge" style="font-size: 0.75rem; color: var(--text-muted);">CONS-AGUARDANDO-PROCESSAMENTO</span>
+              </div>
+              <button id="btnSignSoap" class="btn btn-success" style="padding: 0.5rem 1rem; font-size: 0.85rem;">
+                <span>✍️</span> Assinar Prontuário (CRMV)
+              </button>
+            </div>
+
+            <!-- Subjetivo -->
+            <div class="soap-section">
+              <span class="soap-letter">S — SUBJETIVO (Anamnese & Queixas do Tutor)</span>
+              <p><strong>Queixa Principal:</strong> <span id="soapQueixa">Aguardando áudio da consulta...</span></p>
+              <p style="margin-top: 0.25rem;"><strong>Histórico da Moléstia:</strong> <span id="soapHMA">-</span></p>
+              <p style="margin-top: 0.25rem;"><strong>Alimentação & Rotina:</strong> <span id="soapAlimentacao">-</span></p>
+            </div>
+
+            <!-- Objetivo -->
+            <div class="soap-section">
+              <span class="soap-letter">O — OBJETIVO (Exame Físico & Parâmetros Vitais)</span>
+              <div class="vital-tags" id="soapVitais">
+                <span class="vital-badge">🌡️ Temp: -- °C</span>
+                <span class="vital-badge">❤️ FC: -- bpm</span>
+                <span class="vital-badge">🫁 FR: -- mpm</span>
+                <span class="vital-badge">💧 Desidratação: --%</span>
+              </div>
+              <p><strong>Exame Físico Geral:</strong> <span id="soapGeral">-</span></p>
+              <p style="margin-top: 0.25rem;"><strong>Exame Físico Específico:</strong> <span id="soapEspecifico">-</span></p>
+            </div>
+
+            <!-- Avaliação -->
+            <div class="soap-section">
+              <span class="soap-letter">A — AVALIAÇÃO (Hipóteses Diagnósticas)</span>
+              <ul id="soapDiagnosticos" style="margin-left: 1.25rem; margin-top: 0.25rem;">
+                <li>Nenhum diagnóstico processado ainda.</li>
+              </ul>
+              <div style="margin-top: 0.5rem;">
+                <strong>Nível de Gravidade:</strong> 
+                <span id="soapGravidade" class="pet-badge badge-info">Eletivo</span>
+              </div>
+            </div>
+
+            <!-- Plano -->
+            <div class="soap-section">
+              <span class="soap-letter">P — PLANO TERAPÊUTICO & PRESCRIÇÕES</span>
+              
+              <h4 style="margin-top: 0.5rem; font-size: 0.9rem;">Prescrições Farmacológicas:</h4>
+              <table class="rx-table">
+                <thead>
+                  <tr>
+                    <th>Medicamento</th>
+                    <th>Dosagem</th>
+                    <th>Frequência</th>
+                    <th>Duração</th>
+                    <th>Via</th>
+                  </tr>
+                </thead>
+                <tbody id="soapRxTbody">
+                  <tr><td colspan="5" style="text-align: center; color: var(--text-muted);">Nenhum medicamento prescrito ainda.</td></tr>
+                </tbody>
+              </table>
+
+              <h4 style="margin-top: 0.75rem; font-size: 0.9rem;">Exames Solicitados:</h4>
+              <ul id="soapExames" style="margin-left: 1.25rem; margin-top: 0.25rem;">
+                <li>Nenhum exame solicitado.</li>
+              </ul>
+
+              <p style="margin-top: 0.5rem;">
+                <strong>Retorno Recomendado:</strong> <span id="soapRetorno">10 dias</span>
+              </p>
+            </div>
+          </div>
+
+          <!-- Aba 2: Alertas Clínicos -->
+          <div id="tab-alerts" class="tab-pane">
+            <h2 style="font-size: 1.15rem; font-weight: 800; margin-bottom: 0.5rem;">Guardrails de Segurança Clínica & Decisão (Symbolic AI)</h2>
+            <p style="color: var(--text-muted); font-size: 0.85rem; margin-bottom: 1rem;">
+              O motor analisa cruzamento de espécie, fenótipo racial, peso e histórico longitudinal para evitar erros de prescrição e dosagem.
+            </p>
+            <div id="alertsContainer">
+              <div style="text-align: center; color: var(--text-muted); padding: 2rem;">
+                Nenhum alerta clínico disparado ainda.
+              </div>
+            </div>
+          </div>
+
+          <!-- Aba 3: Visão do Tutor -->
+          <div id="tab-tutor" class="tab-pane">
+            <h2 style="font-size: 1.15rem; font-weight: 800; margin-bottom: 0.5rem;">Guia Pós-Consulta Acolhedor (Visão do Tutor)</h2>
+            <p style="color: var(--text-muted); font-size: 0.85rem; margin-bottom: 1rem;">
+              Mensagem enviada automaticamente para o WhatsApp do tutor contendo linguagem simplificada e cronograma de remédios com horários exatos.
+            </p>
+
+            <div class="wa-container">
+              <div class="wa-header">
+                <div style="background: white; border-radius: 50%; width: 36px; height: 36px; display: flex; align-items: center; justify-content: center;">🐾</div>
+                <div>
+                  <strong>CLYVO VET — Atendimento</strong><br>
+                  <span style="font-size: 0.7rem; opacity: 0.9;">online agora</span>
+                </div>
+              </div>
+              <div class="wa-bubble">
+                <p id="waSaudacao">Olá! Aqui está o resumo da consulta de hoje com o Dr(a). Veterinário(a).</p>
+                <hr style="margin: 0.5rem 0; border: none; border-top: 1px dashed #ccc;">
+                <p><strong>🩺 O que seu pet tem:</strong></p>
+                <p id="waDoenca" style="margin-top: 0.2rem; color: #1e293b;">-</p>
+                
+                <p style="margin-top: 0.75rem;"><strong>⏰ Cronograma de Remédios:</strong></p>
+                <div id="waRemedios" style="margin-top: 0.3rem;">-</div>
+
+                <p style="margin-top: 0.75rem;"><strong>⚠️ Sinais de Alerta (quando nos ligar):</strong></p>
+                <ul id="waAlertas" style="margin-left: 1.1rem; margin-top: 0.2rem; color: #991b1b;">
+                  <li>-</li>
+                </ul>
+
+                <p style="margin-top: 0.75rem; color: #065f46;" id="waProximoPasso">
+                  <strong>📅 Retorno:</strong> Agendado na clínica.
+                </p>
+                <div class="wa-time">10:42 ✓✓</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Aba 4: Gestão da Clínica -->
+          <div id="tab-clinic" class="tab-pane">
+            <h2 style="font-size: 1.15rem; font-weight: 800; margin-bottom: 0.5rem;">Inteligência de Negócio & Oportunidades da Clínica</h2>
+            <p style="color: var(--text-muted); font-size: 0.85rem; margin-bottom: 1rem;">
+              A IA identifica procedimentos e exames citados no diálogo para evitar subnotificação no faturamento e elevar o LTV do paciente.
+            </p>
+
+            <div style="display: grid; grid-template-columns: 2fr 1fr; gap: 1rem; margin-bottom: 1.5rem;">
+              <div class="card" style="margin: 0;">
+                <h4 style="margin-bottom: 0.5rem;">Itens Faturáveis Identificados na Consulta:</h4>
+                <table class="rx-table">
+                  <thead>
+                    <tr>
+                      <th>Procedimento / Exame</th>
+                      <th>Categoria</th>
+                      <th>Valor Sugerido</th>
+                    </tr>
+                  </thead>
+                  <tbody id="clinicItemsTbody">
+                    <tr><td colspan="3" style="text-align: center; color: var(--text-muted);">Nenhum item faturável identificado.</td></tr>
+                  </tbody>
+                </table>
+              </div>
+
+              <div class="card" style="margin: 0; background: #ecfdf5; border-color: #a7f3d0; text-align: center; display: flex; flex-direction: column; justify-content: center;">
+                <div style="font-size: 0.85rem; color: #065f46; font-weight: 700;">VALOR POTENCIAL IDENTIFICADO</div>
+                <div id="clinicTotalValue" style="font-size: 2.2rem; font-weight: 800; color: #059669; margin: 0.4rem 0;">R$ 0,00</div>
+                <div style="font-size: 0.75rem; color: #047857;">Procedimentos e vacinas que não serão esquecidos.</div>
+              </div>
+            </div>
+
+            <div class="card" style="margin: 0;">
+              <h4 style="margin-bottom: 0.5rem;">Ações Automáticas de Relacionamento & Fidelização:</h4>
+              <ul id="clinicActionsList" style="margin-left: 1.25rem; font-size: 0.9rem;">
+                <li>Aguardando processamento da consulta.</li>
+              </ul>
+            </div>
+          </div>
+
+          <!-- Aba 5: Transcrição ASR -->
+          <div id="tab-transcript" class="tab-pane">
+            <h2 style="font-size: 1.15rem; font-weight: 800; margin-bottom: 0.5rem;">Transcrição Integral Diarizada (ASR Multimodal)</h2>
+            <p style="color: var(--text-muted); font-size: 0.85rem; margin-bottom: 1rem;">
+              Captura acústica e conversão fonema-texto em português brasileiro com isolamento de ruído ambiente e identificação de locutor.
+            </p>
+            <div id="rawTranscriptText" style="background: #f8fafc; border: 1px solid var(--border); border-radius: 8px; padding: 1rem; font-family: monospace; font-size: 0.85rem; white-space: pre-wrap; line-height: 1.6; max-height: 450px; overflow-y: auto;">
+              Nenhuma transcrição ativa. Inicie a escuta ou selecione um caso de teste.
+            </div>
+          </div>
+
+        </div>
+
+      </div>
+
+    </section>
+
+  </main>
+
+  <script src="/static/app.js"></script>
+</body>
+</html>
