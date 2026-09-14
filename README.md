@@ -9,6 +9,15 @@
 
 ---
 
+##Integrantes
+
+Maicon      RM561279
+Gabriel F.  RM561551
+Charlles    RM566482
+Iago D.     RM565708
+
+---
+
 ## 📌 Sumário Executivo e Problema de Negócio
 
 Durante uma consulta veterinária típica, o médico-veterinário gasta entre **30% e 45% do tempo digitando anotações manuais** em prontuários eletrônicos engessados, dividindo a atenção enquanto contém animais estressados. Ao mesmo tempo, tutores angustiados esquecem mais de **50% das instruções verbais** minutos após sair da clínica, e procedimentos complementares citados verbalmente deixam de ser faturados ou agendados.
