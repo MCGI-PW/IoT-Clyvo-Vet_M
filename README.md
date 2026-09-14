@@ -146,30 +146,3 @@ clyvo-vet-ai/
     └── package_submission.sh           # Script utilitário para gerar o .zip final da entrega
 ```
 
----
-
-## 🎯 Alinhamento com os Critérios de Avaliação
-
-| Critério de Avaliação | Pontuação | Onde está atendido no projeto |
-| :--- | :--- | :--- |
-| **Aplicação Técnica de Conceitos de IA** | Até 60 pts | Arquitetura híbrida documentada em [`docs/AI_SPECIFICATION.md`](docs/AI_SPECIFICATION.md), combinando ASR acústico + LLM com Structured Outputs + Symbolic AI Guardrails determinísticos em [`app/services/decision_support.py`](app/services/decision_support.py). |
-| **Clareza e Didática da Apresentação em Vídeo** | Até 20 pts | Roteiro palavra por palavra cronometrado para exatamente 5 minutos em [`docs/PITCH_SCRIPT_5MIN.md`](docs/PITCH_SCRIPT_5MIN.md) e estrutura de slides em [`docs/SLIDES_OUTLINE.md`](docs/SLIDES_OUTLINE.md). |
-| **Organização do Repositório e Documentação** | Até 20 pts | Código modular, tipado e testado (6/6 testes passando), documentação de arquitetura detalhada em [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md) e script de empacotamento auditado em [`scripts/package_submission.sh`](scripts/package_submission.sh). |
-
----
-
-## 📦 Como Gerar o Arquivo .zip Final de Entrega
-
-Para gerar o arquivo zip oficial pronto para submissão, execute:
-```bash
-./scripts/package_submission.sh
-```
-O script gerará o arquivo **`CLYVO_VET_ENTREGA_IA.zip`** no diretório raiz, validando automaticamente sua integridade e excluindo arquivos temporários e caches.
-
----
-
-## 📹 Instruções para o Vídeo Pitch (YouTube Não Listado)
-1. Utilize o roteiro em **[`docs/PITCH_SCRIPT_5MIN.md`](docs/PITCH_SCRIPT_5MIN.md)** para gravar sua apresentação (meta: 5 minutos cravados).
-2. Durante a demonstração (entre os minutos 00:50 e 02:00), grave a tela do dashboard rodando em `http://localhost:8000`.
-3. Publique o vídeo no YouTube com a configuração de privacidade **"Não Listado" (Unlisted)**.
-4. Inclua o link do vídeo e do repositório GitHub no arquivo de submissão do trabalho.
