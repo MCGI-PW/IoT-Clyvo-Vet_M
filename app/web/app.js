@@ -120,13 +120,19 @@ async function loadPetData(petId) {
 }
 
 // Transcrição ao vivo com o reconhecimento de voz do navegador (Web Speech API)
-function toggleMicrophone() {
+// Erros que não adianta tentar de novo: a escuta para e o motivo aparece na tela
+const ERROS_DE_ESCUTA = {
+  "not-allowed": "Permissão do microfone negada. Clique no cadeado da barra de endereço, libere o microfone e tente de novo.",
+  "service-not-allowed": "O navegador bloqueou o reconhecimento de voz. No Safari, ative o Ditado em Ajustes do Sistema > Teclado.",
+  "audio-capture": "Nenhum microfone encontrado. Verifique se ele está conectado e liberado para o navegador nas configurações do sistema.",
+  "network": "O reconhecimento de voz precisa de internet (o Chrome envia o áudio para o serviço de voz do Google). Verifique a conexão.",
+  "language-not-supported": "Este navegador não reconhece fala em português. Use o Google Chrome ou o Microsoft Edge."
+};
+let textoParcial = "";
+
+async function toggleMicrophone() {
   if (isRecording) {
-    isRecording = false;
-    if (recognition) recognition.stop();
-    setMicButton(false);
-    document.getElementById("liveInterim").innerText = "";
-    animateVisualizer(false, "Escuta finalizada. Revise o texto e clique em Processar Consulta.");
+    pararEscuta("Escuta finalizada. Revise o texto e clique em Processar Consulta.");
     return;
   }
 
@@ -134,6 +140,22 @@ function toggleMicrophone() {
   if (!SpeechRecognition) {
     animateVisualizer(false, "Este navegador não tem reconhecimento de voz (use Chrome ou Edge). Cole a transcrição no campo abaixo.");
     return;
+  }
+  if (!window.isSecureContext) {
+    animateVisualizer(false, "O microfone só funciona em https ou em http://localhost. Abra a página por http://localhost:8000.");
+    return;
+  }
+
+  // Pede o microfone antes: assim o navegador mostra o pedido de permissão e já sabemos se há microfone
+  if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      stream.getTracks().forEach(t => t.stop());
+    } catch (err) {
+      const erro = err.name === "NotFoundError" ? "audio-capture" : "not-allowed";
+      animateVisualizer(false, ERROS_DE_ESCUTA[erro]);
+      return;
+    }
   }
 
   const transcriptBox = document.getElementById("liveTranscript");
@@ -147,39 +169,79 @@ function toggleMicrophone() {
   recognition.continuous = true;
   recognition.interimResults = true;
 
+  recognition.onspeechstart = () => {
+    animateVisualizer(true, "🔴 Ouvindo: o texto aparece abaixo enquanto você fala.");
+  };
+
   recognition.onresult = (event) => {
     let parcial = "";
     for (let i = event.resultIndex; i < event.results.length; i++) {
       const trecho = event.results[i][0].transcript.trim();
+      if (!trecho) continue;
       if (event.results[i].isFinal) {
-        const atual = transcriptBox.value.trim();
-        transcriptBox.value = (atual ? atual + " " : "") + capitalizar(trecho) + ".";
-        transcriptBox.scrollTop = transcriptBox.scrollHeight;
+        acrescentarFrase(transcriptBox, trecho);
       } else {
         parcial += trecho + " ";
       }
     }
     // Legenda em tempo real, como a tradução simultânea dos fones de ouvido
-    interimBox.innerText = parcial;
+    textoParcial = parcial.trim();
+    interimBox.innerText = textoParcial;
   };
 
   recognition.onerror = (event) => {
-    if (event.error === "not-allowed" || event.error === "service-not-allowed") {
-      isRecording = false;
-      setMicButton(false);
-      animateVisualizer(false, "Permissão do microfone negada. Libere o microfone ou cole a transcrição.");
+    const mensagem = ERROS_DE_ESCUTA[event.error];
+    if (mensagem) {
+      pararEscuta(mensagem);
     }
+    // "no-speech" e "aborted" são normais em pausas: a escuta reinicia sozinha no onend
   };
 
   // O navegador encerra a escuta após pausas longas; reinicia enquanto o veterinário não finalizar
   recognition.onend = () => {
-    if (isRecording) recognition.start();
+    if (!isRecording) return;
+    setTimeout(() => {
+      if (!isRecording) return;
+      try {
+        recognition.start();
+      } catch (err) {
+        pararEscuta("A escuta foi interrompida pelo navegador. Clique em Iniciar Escuta de novo.");
+      }
+    }, 250);
   };
 
-  recognition.start();
+  try {
+    recognition.start();
+  } catch (err) {
+    animateVisualizer(false, "Não foi possível iniciar a escuta: " + err.message);
+    return;
+  }
   isRecording = true;
   setMicButton(true);
-  animateVisualizer(true, "🔴 Escutando a consulta: o texto aparece em tempo real abaixo.");
+  animateVisualizer(true, "🔴 Escutando a consulta: comece a falar.");
+}
+
+function pararEscuta(mensagem) {
+  isRecording = false;
+  if (recognition) {
+    try { recognition.stop(); } catch (_) { /* já estava parada */ }
+  }
+  // Alguns navegadores (ex.: Safari) não confirmam a última frase ao parar: ela não pode se perder
+  if (textoParcial) {
+    acrescentarFrase(document.getElementById("liveTranscript"), textoParcial);
+    textoParcial = "";
+  }
+  document.getElementById("liveInterim").innerText = "";
+  setMicButton(false);
+  animateVisualizer(false, mensagem);
+}
+
+function acrescentarFrase(transcriptBox, trecho) {
+  const atual = transcriptBox.value.trim();
+  const frase = capitalizar(trecho);
+  transcriptBox.value = (atual ? atual + " " : "") + frase + (/[.!?]$/.test(frase) ? "" : ".");
+  transcriptBox.scrollTop = transcriptBox.scrollHeight;
+  textoParcial = "";
 }
 
 function setMicButton(gravando) {

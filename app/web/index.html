@@ -16,8 +16,8 @@
         <div style="font-size: 0.75rem; color: var(--text-muted);">ClyvoScribe AI • Inteligência Clínica Ambiental</div>
       </div>
     </div>
-    <div style="display: flex; gap: 1rem; align-items: center;">
-      <div style="font-size: 0.85rem; color: var(--text-muted); text-align: right;">
+    <div class="header-meta">
+      <div class="header-vet">
         <strong>Dr. Veterinário(a) Responsável</strong><br>
         <span style="color: #64748b;">CRMV-SP 45.892</span>
       </div>
@@ -104,7 +104,7 @@
               <span>🔴</span> Iniciar Escuta (Microfone)
             </button>
             <div style="text-align: center; font-size: 0.75rem; color: var(--text-muted); margin: 0.2rem 0;">— ou carregue um caso gravado para teste —</div>
-            <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 0.35rem;">
+            <div class="sample-grid">
               <button class="btn btn-outline sample-btn" data-case="CASE-THOR-OTITE" style="font-size: 0.75rem; padding: 0.5rem;">
                 Thor (Otite)
               </button>
@@ -163,7 +163,7 @@
           
           <!-- Aba 1: Prontuário SOAP -->
           <div id="tab-soap" class="tab-pane active">
-            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+            <div class="soap-header">
               <div>
                 <h2 style="font-size: 1.15rem; font-weight: 800;">Minuta de Prontuário Clínico Automatizada</h2>
                 <span id="consultationIdBadge" style="font-size: 0.75rem; color: var(--text-muted);">CONS-AGUARDANDO-PROCESSAMENTO</span>
@@ -211,7 +211,7 @@
               <span class="soap-letter">P — PLANO TERAPÊUTICO & PRESCRIÇÕES</span>
               
               <h4 style="margin-top: 0.5rem; font-size: 0.9rem;">Prescrições Farmacológicas:</h4>
-              <table class="rx-table">
+              <div class="table-scroll"><table class="rx-table">
                 <thead>
                   <tr>
                     <th>Medicamento</th>
@@ -224,7 +224,7 @@
                 <tbody id="soapRxTbody">
                   <tr><td colspan="5" style="text-align: center; color: var(--text-muted);">Nenhum medicamento prescrito ainda.</td></tr>
                 </tbody>
-              </table>
+              </table></div>
 
               <h4 style="margin-top: 0.75rem; font-size: 0.9rem;">Exames Solicitados:</h4>
               <ul id="soapExames" style="margin-left: 1.25rem; margin-top: 0.25rem;">
@@ -294,10 +294,10 @@
               A IA identifica procedimentos e exames citados no diálogo para evitar subnotificação no faturamento e elevar o LTV do paciente.
             </p>
 
-            <div style="display: grid; grid-template-columns: 2fr 1fr; gap: 1rem; margin-bottom: 1.5rem;">
+            <div class="clinic-grid">
               <div class="card" style="margin: 0;">
                 <h4 style="margin-bottom: 0.5rem;">Itens Faturáveis Identificados na Consulta:</h4>
-                <table class="rx-table">
+                <div class="table-scroll"><table class="rx-table">
                   <thead>
                     <tr>
                       <th>Procedimento / Exame</th>
@@ -308,7 +308,7 @@
                   <tbody id="clinicItemsTbody">
                     <tr><td colspan="3" style="text-align: center; color: var(--text-muted);">Nenhum item faturável identificado.</td></tr>
                   </tbody>
-                </table>
+                </table></div>
               </div>
 
               <div class="card" style="margin: 0; background: #ecfdf5; border-color: #a7f3d0; text-align: center; display: flex; flex-direction: column; justify-content: center;">
