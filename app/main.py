@@ -36,6 +36,11 @@ class ConsultationRequest(BaseModel):
     custom_transcript: Optional[str] = None
 
 
+class TranscriptionSummaryRequest(BaseModel):
+    transcript: str
+    contexto_paciente: Optional[str] = None
+
+
 class FinalizeConsultationRequest(BaseModel):
     consultation_id: str
     crmv: str
@@ -107,6 +112,18 @@ async def upload_audio_consultation(
         )
         return result
     except Exception as e:
+        raise HTTPException(status_code=400, detail=str(e))
+
+
+@app.post("/api/transcriptions/summarize")
+def summarize_transcription(request: TranscriptionSummaryRequest):
+    """
+    Resumo clínico de uma transcrição livre (integração com a API Java da CLYVO VET).
+    Retorna diagnóstico, prescrição, orientações, resumo para o tutor, sinais de alerta e a fonte da IA.
+    """
+    try:
+        return clyvoscribe_pipeline.summarize_transcript(request.transcript, request.contexto_paciente)
+    except ValueError as e:
         raise HTTPException(status_code=400, detail=str(e))
 
 

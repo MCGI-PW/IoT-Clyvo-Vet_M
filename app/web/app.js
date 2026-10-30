@@ -2,8 +2,7 @@
 let currentPetId = "PET-8921";
 let currentSelectedCase = "CASE-THOR-OTITE";
 let isRecording = false;
-let mediaRecorder = null;
-let audioChunks = [];
+let recognition = null;
 
 document.addEventListener("DOMContentLoaded", () => {
   initTabs();
@@ -49,6 +48,8 @@ function initSampleButtons() {
   sampleBtns.forEach(btn => {
     btn.addEventListener("click", () => {
       currentSelectedCase = btn.dataset.case;
+      // Caso de exemplo escolhido: a transcrição vem da amostra gravada, não do campo de texto
+      document.getElementById("liveTranscript").value = "";
       sampleBtns.forEach(b => b.classList.remove("btn-primary"));
       btn.classList.add("btn-primary");
       
@@ -118,47 +119,80 @@ async function loadPetData(petId) {
   }
 }
 
-// Gravação de Microfone
-async function toggleMicrophone() {
-  const btnMic = document.getElementById("btnMicToggle");
-  if (!isRecording) {
-    try {
-      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-      mediaRecorder = new MediaRecorder(stream);
-      audioChunks = [];
-
-      mediaRecorder.ondataavailable = (e) => {
-        if (e.data.size > 0) audioChunks.push(e.data);
-      };
-
-      mediaRecorder.onstop = () => {
-        animateVisualizer(false, "Escuta finalizada. Pronto para processar.");
-      };
-
-      mediaRecorder.start();
-      isRecording = true;
-      btnMic.classList.remove("btn-danger");
-      btnMic.classList.add("btn-success");
-      btnMic.innerHTML = "<span>⏹️</span> Finalizar Escuta";
-      animateVisualizer(true, "🔴 Escutando consulta ambiental em tempo real...");
-    } catch (err) {
-      // Se não houver microfone disponível ou permissão negada, simula a escuta
-      isRecording = true;
-      btnMic.classList.remove("btn-danger");
-      btnMic.classList.add("btn-success");
-      btnMic.innerHTML = "<span>⏹️</span> Finalizar Escuta (Simulada)";
-      animateVisualizer(true, "🔴 Escutando consulta (Modo Simulado ativo)...");
-    }
-  } else {
+// Transcrição ao vivo com o reconhecimento de voz do navegador (Web Speech API)
+function toggleMicrophone() {
+  if (isRecording) {
     isRecording = false;
-    btnMic.classList.remove("btn-success");
-    btnMic.classList.add("btn-danger");
-    btnMic.innerHTML = "<span>🔴</span> Iniciar Escuta (Microfone)";
-    if (mediaRecorder && mediaRecorder.state !== "inactive") {
-      mediaRecorder.stop();
-    }
-    animateVisualizer(false, "Gravação concluída. Clique em Processar Consulta.");
+    if (recognition) recognition.stop();
+    setMicButton(false);
+    document.getElementById("liveInterim").innerText = "";
+    animateVisualizer(false, "Escuta finalizada. Revise o texto e clique em Processar Consulta.");
+    return;
   }
+
+  const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+  if (!SpeechRecognition) {
+    animateVisualizer(false, "Este navegador não tem reconhecimento de voz (use Chrome ou Edge). Cole a transcrição no campo abaixo.");
+    return;
+  }
+
+  const transcriptBox = document.getElementById("liveTranscript");
+  const interimBox = document.getElementById("liveInterim");
+  // Uma consulta nova pelo microfone não usa o caso de exemplo selecionado
+  currentSelectedCase = null;
+  document.querySelectorAll(".sample-btn").forEach(b => b.classList.remove("btn-primary"));
+
+  recognition = new SpeechRecognition();
+  recognition.lang = "pt-BR";
+  recognition.continuous = true;
+  recognition.interimResults = true;
+
+  recognition.onresult = (event) => {
+    let parcial = "";
+    for (let i = event.resultIndex; i < event.results.length; i++) {
+      const trecho = event.results[i][0].transcript.trim();
+      if (event.results[i].isFinal) {
+        const atual = transcriptBox.value.trim();
+        transcriptBox.value = (atual ? atual + " " : "") + capitalizar(trecho) + ".";
+        transcriptBox.scrollTop = transcriptBox.scrollHeight;
+      } else {
+        parcial += trecho + " ";
+      }
+    }
+    // Legenda em tempo real, como a tradução simultânea dos fones de ouvido
+    interimBox.innerText = parcial;
+  };
+
+  recognition.onerror = (event) => {
+    if (event.error === "not-allowed" || event.error === "service-not-allowed") {
+      isRecording = false;
+      setMicButton(false);
+      animateVisualizer(false, "Permissão do microfone negada. Libere o microfone ou cole a transcrição.");
+    }
+  };
+
+  // O navegador encerra a escuta após pausas longas; reinicia enquanto o veterinário não finalizar
+  recognition.onend = () => {
+    if (isRecording) recognition.start();
+  };
+
+  recognition.start();
+  isRecording = true;
+  setMicButton(true);
+  animateVisualizer(true, "🔴 Escutando a consulta: o texto aparece em tempo real abaixo.");
+}
+
+function setMicButton(gravando) {
+  const btnMic = document.getElementById("btnMicToggle");
+  btnMic.classList.toggle("btn-danger", !gravando);
+  btnMic.classList.toggle("btn-success", gravando);
+  btnMic.innerHTML = gravando
+    ? "<span>⏹️</span> Finalizar Escuta"
+    : "<span>🔴</span> Iniciar Escuta (Microfone)";
+}
+
+function capitalizar(texto) {
+  return texto.charAt(0).toUpperCase() + texto.slice(1);
 }
 
 function animateVisualizer(active, text) {
@@ -174,6 +208,10 @@ function animateVisualizer(active, text) {
 
 // Processar Consulta no Backend
 async function processConsultation(petId, caseId) {
+  if (!caseId && !document.getElementById("liveTranscript").value.trim()) {
+    alert("Fale a consulta pelo microfone, cole uma transcrição ou escolha um caso gravado de exemplo.");
+    return;
+  }
   const loading = document.getElementById("loadingIndicator");
   const content = document.getElementById("tabContentArea");
 
@@ -184,9 +222,11 @@ async function processConsultation(petId, caseId) {
     const res = await fetch("/api/consultations/process", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
+      // Texto do campo (falado ao vivo ou colado) tem prioridade sobre o caso de exemplo
       body: JSON.stringify({
         pet_id: petId,
-        sample_case_id: caseId
+        sample_case_id: caseId,
+        custom_transcript: document.getElementById("liveTranscript").value.trim() || null
       })
     });
 
@@ -205,23 +245,27 @@ async function processConsultation(petId, caseId) {
 // Renderizar Resultados
 function renderConsultationResult(data) {
   // 1. SOAP
-  document.getElementById("consultationIdBadge").innerText = `${data.consultation_id} • Processado em ${data.tempo_processamento_segundos}s`;
+  const fonte = data.soap.fonte_ia || "";
+  const fonteLabel = fonte.startsWith("CLAUDE") ? `IA: ${fonte.replace("CLAUDE:", "Claude ")}`
+    : fonte === "LOCAL:protocolo-demo" ? "Protocolo de demonstração" : "Extração local por regras";
+  document.getElementById("consultationIdBadge").innerHTML =
+    `${data.consultation_id} • Processado em ${data.tempo_processamento_segundos}s <span class="fonte-badge">${fonteLabel}</span>`;
   
   // Subjetivo
-  document.getElementById("soapQueixa").innerText = data.soap.subjective.queixa_principal;
-  document.getElementById("soapHMA").innerText = data.soap.subjective.historico_molestia_atual;
+  document.getElementById("soapQueixa").innerText = data.soap.subjective.queixa_principal || "-";
+  document.getElementById("soapHMA").innerText = data.soap.subjective.historico_molestia_atual || "-";
   document.getElementById("soapAlimentacao").innerText = data.soap.subjective.alimentacao_e_apetite || "-";
 
   // Objetivo
   const vit = data.soap.objective.parametros_vitais;
   document.getElementById("soapVitais").innerHTML = `
-    <span class="vital-badge">🌡️ Temp: ${vit.temperatura_retal_c || 38.5} °C</span>
-    <span class="vital-badge">❤️ FC: ${vit.frequencia_cardiaca_bpm || 110} bpm</span>
-    <span class="vital-badge">🫁 FR: ${vit.frequencia_respiratoria_mpm || 24} mpm</span>
-    <span class="vital-badge">💧 Desidratação: ${vit.grau_desidratacao_pct || 0}%</span>
+    <span class="vital-badge">🌡️ Temp: ${vit.temperatura_retal_c ?? "-"} °C</span>
+    <span class="vital-badge">❤️ FC: ${vit.frequencia_cardiaca_bpm ?? "-"} bpm</span>
+    <span class="vital-badge">🫁 FR: ${vit.frequencia_respiratoria_mpm ?? "-"} mpm</span>
+    <span class="vital-badge">💧 Desidratação: ${vit.grau_desidratacao_pct ?? "-"}%</span>
   `;
-  document.getElementById("soapGeral").innerText = data.soap.objective.exame_fisico_geral;
-  document.getElementById("soapEspecifico").innerText = data.soap.objective.exame_fisico_especifico;
+  document.getElementById("soapGeral").innerText = data.soap.objective.exame_fisico_geral || "-";
+  document.getElementById("soapEspecifico").innerText = data.soap.objective.exame_fisico_especifico || "-";
 
   // Avaliação
   const diagList = document.getElementById("soapDiagnosticos");
@@ -243,8 +287,8 @@ function renderConsultationResult(data) {
       <tr>
         <td><strong>${rx.nome_comercial || rx.principio_ativo}</strong><br><small style="color:#64748b;">${rx.forma_farmaceutica}</small></td>
         <td>${rx.dosagem}</td>
-        <td>A cada ${rx.frequencia_horas}h</td>
-        <td>${rx.duracao_dias} dias</td>
+        <td>${rx.frequencia_horas ? `A cada ${rx.frequencia_horas}h` : "-"}</td>
+        <td>${rx.duracao_dias ? `${rx.duracao_dias} dias` : "-"}</td>
         <td><span class="pet-badge badge-info">${rx.via}</span></td>
       </tr>
     `).join("");
@@ -258,7 +302,8 @@ function renderConsultationResult(data) {
     .map(e => `<li>${e}</li>`)
     .join("");
 
-  document.getElementById("soapRetorno").innerText = `${data.soap.plan.retorno_agendado_dias || 10} dias`;
+  const retorno = data.soap.plan.retorno_agendado_dias;
+  document.getElementById("soapRetorno").innerText = retorno ? `${retorno} dias` : "Não definido na consulta";
 
   // 2. Alertas Clínicos
   const alertContainer = document.getElementById("alertsContainer");

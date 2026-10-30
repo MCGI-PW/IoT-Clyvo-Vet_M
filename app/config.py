@@ -9,7 +9,8 @@ SAMPLES_DIR = BASE_DIR / "samples"
 DOCS_DIR = BASE_DIR / "docs"
 WEB_DIR = BASE_DIR / "app" / "web"
 
-GEMINI_API_KEY = os.getenv("GEMINI_API_KEY", "")
+ANTHROPIC_API_KEY = os.getenv("ANTHROPIC_API_KEY", "")
+CLYVO_IA_MODEL = os.getenv("CLYVO_IA_MODEL", "claude-opus-5-5")
 APP_TITLE = "ClyvoScribe AI - Inteligência Clínica Veterinária"
 APP_VERSION = "1.0.0"
 DEBUG = os.getenv("DEBUG", "True").lower() in ("true", "1", "yes")

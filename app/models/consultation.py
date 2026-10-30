@@ -45,8 +45,9 @@ class PrescriptionItem(BaseModel):
     nome_comercial: Optional[str] = None
     forma_farmaceutica: str = ""
     dosagem: str = ""
-    frequencia_horas: int = 12
-    duracao_dias: int = 7
+    # None quando a frequência ou a duração não foram ditas na consulta (a IA não inventa)
+    frequencia_horas: Optional[int] = None
+    duracao_dias: Optional[int] = None
     via: str = "Oral"
     instrucoes_especiais: Optional[str] = None
 
@@ -69,6 +70,11 @@ class SOAPRecord(BaseModel):
     objective: ObjectiveSection = None
     assessment: AssessmentSection = None
     plan: PlanSection = None
+    # Texto para o tutor e sinais de alerta extraídos da própria consulta (vazios nos protocolos de demonstração)
+    resumo_tutor: Optional[str] = None
+    sinais_alerta: List[str] = []
+    # Quem gerou o prontuário: "CLAUDE:<modelo>", "LOCAL:extracao" ou "LOCAL:protocolo-demo"
+    fonte_ia: str = "LOCAL:extracao"
 
     def __init__(self, **kwargs):
         if "subjective" in kwargs:

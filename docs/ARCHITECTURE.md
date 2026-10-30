@@ -30,7 +30,7 @@ graph TB
     end
 
     subgraph AI_Layer ["Pipeline de Inteligência Artificial"]
-        ASR["1. ASR Engine (Whisper / Gemini Multimodal)"]
+        ASR["1. ASR (Web Speech API ao vivo / Whisper para arquivos)"]
         NLP["2. Clinical LLM (Structured SOAP Extractor)"]
         SAFETY["3. Decision Support & Safety Engine (Regras CFMV/MDR1)"]
         TUTOR_GEN["4. Tutor Care Generator (Plain Language + Schedule)"]

@@ -103,6 +103,19 @@ class NativeClyvoHandler(BaseHTTPRequestHandler):
                 self._send_error(400, str(e))
             return
 
+        if path == "/api/transcriptions/summarize":
+            try:
+                payload = json.loads(post_body.decode("utf-8"))
+                self._send_json(clyvoscribe_pipeline.summarize_transcript(
+                    payload.get("transcript", ""), payload.get("contexto_paciente")
+                ))
+            except ValueError as e:
+                self._send_error(400, str(e))
+            except Exception as e:
+                logger.error(f"Erro no resumo: {e}")
+                self._send_error(500, str(e))
+            return
+
         if path == "/api/consultations/finalize":
             try:
                 payload = json.loads(post_body.decode("utf-8"))
@@ -146,12 +159,12 @@ def run(port: int = 8000):
     # Tenta rodar via FastAPI + Uvicorn se instalado
     try:
         import uvicorn
-        import fastapi
+        import app.main  # noqa: F401  valida o app antes (ex.: falta python-multipart para upload de áudio)
         logger.info("⚡ Iniciando servidor via FastAPI + Uvicorn...")
-        uvicorn.run("app.main:app", host="0.0.0.0", port=port, reload=True)
+        uvicorn.run("app.main:app", host="0.0.0.0", port=port, reload=True, reload_dirs=[str(BASE_DIR)])
         return
-    except ImportError:
-        pass
+    except (ImportError, RuntimeError) as e:
+        logger.info(f"FastAPI indisponível ({e.__class__.__name__}): usando o servidor nativo.")
 
     logger.info("=" * 65)
     logger.info(f"🐾 CLYVO VET — ClyvoScribe AI iniciado com sucesso!")

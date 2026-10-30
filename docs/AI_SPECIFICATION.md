@@ -61,7 +61,7 @@ Para garantir confiabilidade médica, baixa latência e conformidade regulatóri
 
 ```mermaid
 graph TD
-    A[Áudio da Consulta] --> B[Camada 1: ASR Especializado - Whisper / Gemini Multimodal]
+    A[Áudio da Consulta] --> B[Camada 1: ASR - Web Speech API ao vivo / Whisper para arquivos]
     B --> C[Transcrição Médica Bruta com Diarização]
     C --> D[Camada 2: LLM Clinical Extractor - Pydantic Structured Outputs]
     E[Prontuário Longitudinal CLYVO VET] --> F[Contexto do Pet: Raça, Idade, Vacinas, Alergias]
@@ -74,14 +74,14 @@ graph TD
 ```
 
 ### 4.1 Camada 1: Reconhecimento Automático de Fala (ASR - Automatic Speech Recognition)
-- **Tecnologia Escolhida**: Modelo baseado em Transformer com atenção contextual (OpenAI Whisper / Gemini Multimodal Audio).
+- **Tecnologia Escolhida**: Reconhecimento de voz do navegador (Web Speech API, `pt-BR`) para a transcrição ao vivo, com legenda em tempo real; OpenAI Whisper (modelo Transformer, rodando local) para arquivos de consultas gravadas.
 - **Justificativa Técnica**:
   - Capacidade de lidar com vocabulário técnico médico-veterinário em português brasileiro (ex: *"ceratoconjuntivite seca"*, *"dermatofitose"*, *"cefaleia"*, *"prednisolona 5mg"*).
   - Robustez a ruídos acústicos comuns no ambiente veterinário (latidos, miados, ruído de ar-condicionado e eco de sala de exame).
   - Suporte à diarização (distinção entre o locutor veterinário e o locutor tutor).
 
 ### 4.2 Camada 2: Modelo de Linguagem de Grande Porte (LLM) com Structured Outputs
-- **Tecnologia Escolhida**: LLM Instruction-Tuned (Gemini 1.5/2.0 Flash / GPT-4o-mini) operando com garantia estrita de esquema estruturado via **Pydantic** / JSON Schema.
+- **Tecnologia Escolhida**: Claude (Anthropic, modelo `claude-opus-5-5`, SDK oficial `anthropic`) com **saída estruturada** via JSON Schema espelhando os modelos Pydantic do SOAP. Sem chave de API, um extrator local por regras resume as frases reais da consulta.
 - **Justificativa Técnica**:
   - LLMs modernos possuem capacidade de raciocínio contextual superior para distinguir o que é queixa do tutor (*"ele vomitou duas vezes de manhã"* -> Subjetivo) do que é exame físico do veterinário (*"temperatura retal 39.2°C, linfonodos poplíteos reativos"* -> Objetivo).
   - A técnica de **Structured Outputs** impede alucinações de formato, garantindo que o backend receba dados tipados (strings, floats para dosagens, listas de medicamentos).

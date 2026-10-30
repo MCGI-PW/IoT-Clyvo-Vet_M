@@ -1,9 +1,14 @@
 """
 Serviço de Reconhecimento Automático de Fala (ASR) especializado em Medicina Veterinária.
-Suporta Whisper, Gemini Multimodal Audio e modo de simulação para demonstrações.
+
+- Ao vivo: a transcrição acontece no navegador (Web Speech API), veja app/web/app.js.
+- Arquivo de áudio gravado: Whisper (pacote opcional `openai-whisper`), rodando local.
+- Casos de demonstração: transcrições de exemplo em samples/audio_transcripts.json.
 """
 import json
 import logging
+import os
+import tempfile
 from typing import Dict, Any, List
 from app.config import SAMPLES_DIR
 
@@ -13,6 +18,7 @@ logger = logging.getLogger(__name__)
 class ASRService:
     def __init__(self):
         self._samples_cache: Dict[str, Any] = {}
+        self._whisper_model = None
         self._load_samples()
 
     def _load_samples(self):
@@ -40,24 +46,26 @@ class ASRService:
         raise ValueError(f"Caso {case_id} não encontrado.")
 
     def transcribe_audio_file(self, filename: str, content: bytes) -> str:
-        """
-        Transcreve um arquivo de áudio recebido via upload.
-        Implementa pipeline resiliente com fallback inteligente.
-        """
-        # Em ambiente de produção, este método aciona o modelo Whisper ou Gemini Audio.
-        # Caso o arquivo corresponda a uma amostra de teste ou esteja em modo offline,
-        # retorna transcrição de alta fidelidade representativa.
+        """Transcreve um arquivo de áudio de consulta gravada com o Whisper (local, em português)."""
         logger.info(f"Processando áudio: {filename}, tamanho={len(content)} bytes")
-        
-        # Heurística para demonstração baseada no nome do arquivo ou padrão
-        fn_lower = filename.lower()
-        if "mel" in fn_lower or "renal" in fn_lower or "gato" in fn_lower:
-            return self._samples_cache.get("CASE-MEL-RENAL", {}).get("transcript", "")
-        elif "bob" in fn_lower or "collie" in fn_lower:
-            return self._samples_cache.get("CASE-BOB-COLLIE", {}).get("transcript", "")
-        else:
-            # Caso padrão: Thor (Buldogue)
-            return self._samples_cache.get("CASE-THOR-OTITE", {}).get("transcript", "")
+        try:
+            import whisper
+        except ImportError:
+            raise RuntimeError(
+                "Transcrição de arquivo requer o pacote opcional 'openai-whisper' (pip install openai-whisper). "
+                "Sem ele, use a transcrição ao vivo do navegador ou cole o texto da consulta."
+            )
+
+        if self._whisper_model is None:
+            self._whisper_model = whisper.load_model(os.getenv("WHISPER_MODEL", "base"))
+        sufixo = os.path.splitext(filename)[1] or ".wav"
+        with tempfile.NamedTemporaryFile(suffix=sufixo, delete=False) as tmp:
+            tmp.write(content)
+            caminho = tmp.name
+        try:
+            return self._whisper_model.transcribe(caminho, language="pt")["text"].strip()
+        finally:
+            os.remove(caminho)
 
 
 asr_service = ASRService()
