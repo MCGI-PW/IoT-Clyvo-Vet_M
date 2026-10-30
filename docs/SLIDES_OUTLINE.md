@@ -36,7 +36,7 @@ Use esta estrutura de 6 a 7 slides caso queira projetar uma apresentação no Ca
 ### Slide 4: Arquitetura Técnica em 3 Camadas
 - **Título**: Arquitetura Híbrida: Inovação e Rigor Clínico
 - **Tópicos**:
-  - **Camada 1 (ASR)**: Whisper / Multimodal com cancelamento de ruído e diarização.
+  - **Camada 1 (ASR)**: transcrição ao vivo no navegador (Web Speech API) e Whisper para áudios gravados.
   - **Camada 2 (Clinical LLM)**: Extração de entidades e redação SOAP com Pydantic Structured Outputs.
   - **Camada 3 (Safety Guardrail)**: Motor determinístico de regras baseado em CFMV e genética de raças (MDR1, braquicefálicos).
 - **Elemento Visual**: Diagrama de blocos da arquitetura (conforme documentado em `docs/ARCHITECTURE.md`).

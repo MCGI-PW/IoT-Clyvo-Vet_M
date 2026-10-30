@@ -21,7 +21,15 @@ class TutorCareGenerator:
         # Resumo compreensível da condição
         diagnosticos = soap.assessment.hipoteses_diagnosticas
         resumo_doenca = " ".join(diagnosticos)
-        if "otite" in resumo_doenca.lower():
+        if soap.resumo_tutor:
+            # Consulta real (Claude ou extrator local): usa o que foi dito, não um texto pronto
+            o_que_tem = soap.resumo_tutor
+            sinais_alerta = soap.sinais_alerta or [
+                f"Piora dos sintomas do(a) {pet.nome} ou surgimento de sintomas novos.",
+                "Recusa de água ou comida por mais de 24 horas.",
+                "Prostração intensa, febre ou dificuldade para respirar."
+            ]
+        elif "otite" in resumo_doenca.lower():
             o_que_tem = f"O {pet.nome} está com uma infecção e inflamação nos ouvidos (otite), que está causando coceira, dor e secreção. Também notamos um início de irritação nas patinhas por lambedura."
             sinais_alerta = [
                 f"{pet.nome} chorar muito ou ficar com a cabeça caída de lado continuamente.",
@@ -53,8 +61,10 @@ class TutorCareGenerator:
                 horarios = ["07:00 da manhã", "15:00 da tarde", "23:00 da noite"]
             elif presc.frequencia_horas == 24:
                 horarios = ["09:00 da manhã (1x ao dia)"]
-            else:
+            elif presc.frequencia_horas:
                 horarios = [f"A cada {presc.frequencia_horas} horas"]
+            else:
+                horarios = ["Conforme orientação do(a) veterinário(a)"]
 
             instrucao = presc.instrucoes_especiais or f"Administrar {presc.dosagem} por via {presc.via}."
 
@@ -62,10 +72,14 @@ class TutorCareGenerator:
                 remedio=f"{nome} ({presc.forma_farmaceutica})",
                 como_dar=f"{presc.dosagem} - {instrucao}",
                 horarios_sugeridos=horarios,
-                duracao=f"Seguir rigorosamente por {presc.duracao_dias} dias!"
+                duracao=(f"Seguir rigorosamente por {presc.duracao_dias} dias!" if presc.duracao_dias
+                         else "Seguir pelo período indicado pelo(a) veterinário(a).")
             ))
 
-        proximo = f"Retorno agendado na clínica para daqui a {soap.plan.retorno_agendado_dias or 10} dias para reavaliação. Qualquer urgência, chame a equipe da CLYVO VET!"
+        if soap.plan.retorno_agendado_dias:
+            proximo = f"Retorno agendado na clínica para daqui a {soap.plan.retorno_agendado_dias} dias para reavaliação. Qualquer urgência, chame a equipe da CLYVO VET!"
+        else:
+            proximo = "Siga as orientações da consulta. Qualquer urgência, chame a equipe da CLYVO VET!"
 
         return TutorCareGuide(
             saudacao=saudacao,
@@ -126,7 +140,8 @@ class ClinicRevenueRecommender:
         # Ações de fidelização
         acoes = [
             f"Disparo automático de mensagem de check-in via WhatsApp para o tutor {pet.tutor_nome} em 48 horas.",
-            f"Reserva automática de horário para o retorno presencial em {soap.plan.retorno_agendado_dias or 10} dias na agenda da clínica.",
+            (f"Reserva automática de horário para o retorno presencial em {soap.plan.retorno_agendado_dias} dias na agenda da clínica."
+             if soap.plan.retorno_agendado_dias else "Contato para agendar o retorno, se o(a) veterinário(a) indicar."),
             "Lembrete inteligente de recompra de ração ou medicamento de uso contínuo."
         ]
 

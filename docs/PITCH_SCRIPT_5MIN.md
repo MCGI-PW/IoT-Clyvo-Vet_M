@@ -51,8 +51,8 @@
 
 > *"Mas como essa mágica acontece debaixo do capô?*  
 > *O ClyvoScribe AI não é apenas um transcritor comum de áudio; ele opera com uma **arquitetura híbrida em três camadas** integrada ao backend FastAPI da CLYVO VET:*  
-> *Na **Primeira Camada**, utilizamos um modelo avançado de ASR (Whisper / Gemini Multimodal) especializado no léxico médico-veterinário em português brasileiro, capaz de isolar latidos e ruídos da clínica e realizar diarização de locutores.*  
-> *Na **Segunda Camada**, os textos diarizados são enriquecidos com o prontuário pregresso do pet e processados por um LLM com **Structured Outputs** via Pydantic. Isso garante zero alucinações sintáticas e extrai entidades clínicas perfeitamente tipadas.*  
+> *Na **Primeira Camada**, o reconhecimento de voz transcreve a consulta ao vivo em português, com a legenda aparecendo na tela enquanto se fala; consultas gravadas são transcritas pelo Whisper.*  
+> *Na **Segunda Camada**, os textos diarizados são enriquecidos com o prontuário pregresso do pet e processados pelo Claude, da Anthropic, com **Structured Outputs** (JSON Schema dos modelos Pydantic). Isso garante zero alucinações sintáticas e extrai entidades clínicas perfeitamente tipadas.*  
 > *E na **Terceira Camada**, implementamos um **Motor Determinístico de Regras Clínicas**. Nós não deixamos dosagens e contraindicações a cargo de probabilidades estatísticas. Essa camada cruza os fármacos prescritos com diretrizes da WSAVA e do CFMV, validando pesos, toxicidades raciais como a mutação MDR1 e interações medicamentosas.*  
 > *Essa união entre IA Generativa e IA Simbólica Determinística entrega a máxima inovação com 100% de segurança médica."*
 

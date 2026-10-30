@@ -90,6 +90,14 @@
             <div id="visualizerText" class="visualizer-status">Aguardando início do atendimento...</div>
           </div>
 
+          <!-- Transcrição ao vivo (Web Speech API) ou texto colado de uma consulta gravada -->
+          <div class="live-transcript">
+            <label for="liveTranscript">Transcrição da consulta</label>
+            <textarea id="liveTranscript" rows="6"
+              placeholder="Clique em Iniciar Escuta e fale a consulta: o texto aparece aqui em tempo real. Também dá para colar a transcrição de uma consulta gravada."></textarea>
+            <div id="liveInterim" class="live-interim"></div>
+          </div>
+
           <!-- Botões de Controle -->
           <div style="display: flex; flex-direction: column; gap: 0.5rem;">
             <button id="btnMicToggle" class="btn btn-danger">
@@ -224,7 +232,7 @@
               </ul>
 
               <p style="margin-top: 0.5rem;">
-                <strong>Retorno Recomendado:</strong> <span id="soapRetorno">10 dias</span>
+                <strong>Retorno Recomendado:</strong> <span id="soapRetorno">-</span>
               </p>
             </div>
           </div>

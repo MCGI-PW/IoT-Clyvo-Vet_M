@@ -1,6 +1,11 @@
 """
 Motor de NLP Clínico Veterinário para estruturação de consultas no padrão SOAP
-(Subjective, Objective, Assessment, Plan). Suporta extração via LLM e motor determinístico local.
+(Subjective, Objective, Assessment, Plan).
+
+Ordem de uso:
+1. Claude (IA generativa com saída estruturada), quando ANTHROPIC_API_KEY está configurada;
+2. Protocolos de demonstração, só para os casos gravados de exemplo (Thor, Mel e Bob);
+3. Extrator local por regras, que resume as frases reais de qualquer outra consulta.
 """
 import re
 import json
@@ -11,26 +16,39 @@ from app.models.consultation import (
     SOAPRecord, SubjectiveSection, ObjectiveSection, AssessmentSection,
     PlanSection, VitalSigns, PrescriptionItem
 )
-from app.config import GEMINI_API_KEY
+from app.services.claude_extractor import claude_extractor
+from app.services.local_extractor import extrair_soap
 
 logger = logging.getLogger(__name__)
 
 
 class ClinicalNLPService:
-    def __init__(self):
-        self.api_key = GEMINI_API_KEY
+    def __init__(self, llm=claude_extractor):
+        self.llm = llm
 
-    def extract_soap_record(self, transcript: str, pet: PetHealthProfile) -> SOAPRecord:
+    def extract_soap_record(self, transcript: str, pet: PetHealthProfile, demo_case: bool = False) -> SOAPRecord:
         """
         Extrai o prontuário estruturado SOAP a partir da transcrição da consulta e do contexto do Pet.
+        demo_case=True indica um dos casos gravados de exemplo, que têm protocolo pronto no modo offline.
         """
-        # Se houver chave do Gemini configurada, pode chamar a API do modelo;
-        # Caso contrário (ou em ambiente offline), executa o extrator de alta precisão especializado.
-        return self._local_clinical_extraction(transcript, pet)
+        if self.llm is not None and self.llm.disponivel:
+            try:
+                soap = SOAPRecord(**self.llm.extrair(transcript, pet))
+                soap.fonte_ia = self.llm.fonte
+                return soap
+            except Exception as e:
+                # A consulta não pode travar por indisponibilidade da IA externa
+                logger.warning("Falha no Claude (%s). Usando o extrator local.", e)
+
+        if demo_case:
+            soap = self._local_clinical_extraction(transcript, pet)
+            soap.fonte_ia = "LOCAL:protocolo-demo"
+            return soap
+        return extrair_soap(transcript, pet)
 
     def _local_clinical_extraction(self, text: str, pet: PetHealthProfile) -> SOAPRecord:
         """
-        Extrator clínico de alta acurácia que analisa padrões biomédicos e regras veterinárias.
+        Protocolos prontos dos três casos de demonstração (gabarito offline das amostras gravadas).
         """
         text_lower = text.lower()
 

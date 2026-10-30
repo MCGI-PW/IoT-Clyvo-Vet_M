@@ -287,6 +287,53 @@ header {
   100% { height: 36px; }
 }
 
+.live-transcript {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+}
+
+.live-transcript label {
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: var(--dark);
+}
+
+.live-transcript textarea {
+  width: 100%;
+  resize: vertical;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 0.6rem;
+  font-size: 0.85rem;
+  line-height: 1.5;
+  color: var(--text-main);
+  background: var(--card-bg);
+}
+
+.live-transcript textarea:focus {
+  outline: 2px solid var(--primary-light);
+  border-color: var(--primary);
+}
+
+.live-interim {
+  min-height: 1.1rem;
+  font-size: 0.8rem;
+  font-style: italic;
+  color: var(--text-muted);
+}
+
+.fonte-badge {
+  display: inline-block;
+  margin-left: 0.4rem;
+  padding: 1px 8px;
+  border-radius: 10px;
+  font-size: 0.7rem;
+  font-weight: 700;
+  background: var(--primary-light);
+  color: var(--primary-dark);
+}
+
 .visualizer-status {
   color: #94a3b8;
   font-size: 0.75rem;

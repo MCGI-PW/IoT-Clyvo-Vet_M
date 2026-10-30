@@ -2,7 +2,7 @@
 > **Inteligência Clínica Ambiental e Apoio à Tomada de Decisão Veterinária**  
 > *Transformando a escuta da consulta em prontuário SOAP estruturado, segurança medicamentosa e cuidado contínuo para o pet.*
 
-[![Testes Automatizados](https://img.shields.io/badge/Testes-6%2F6%20Passando-brightgreen.svg)]()
+[![Testes Automatizados](https://img.shields.io/badge/Testes-13%2F13%20Passando-brightgreen.svg)]()
 [![Python Version](https://img.shields.io/badge/Python-3.9%2B-blue.svg)]()
 [![Arquitetura](https://img.shields.io/badge/Arquitetura-Híbrida%20(ASR%20%2B%20LLM%20%2B%20Symbolic)-orange.svg)]()
 [![Padrão Clínico](https://img.shields.io/badge/Padrão-SOAP%20(CFMV%20%2F%20AAHA)-purple.svg)]()
@@ -42,8 +42,8 @@ graph TB
     end
 
     subgraph Pipeline_IA ["2. Pipeline de Inteligência Artificial Híbrida"]
-        ASR["Camada 1: Reconhecimento de Fala (Whisper / Gemini Multimodal)"]
-        NLP["Camada 2: Clinical NLP LLM (Pydantic Structured Outputs)"]
+        ASR["Camada 1: Transcrição ao vivo (Web Speech API) / Whisper para arquivos"]
+        NLP["Camada 2: Claude com Structured Outputs (+ extrator local sem internet)"]
         SAFETY["Camada 3: Motor Determinístico de Segurança Clínica (CFMV / MDR1)"]
     end
 
@@ -53,6 +53,7 @@ graph TB
         CLINIC["Sugestão de Faturamento de Exames e Retorno Preventivo"]
     end
 
+    JAVA["API Java CLYVO VET (Spring Boot)"] -->|POST /api/transcriptions/summarize| NLP
     MIC --> ASR
     ASR -->|Transcrição Diarizada| NLP
     EHR -->|Contexto do Paciente| NLP
@@ -70,8 +71,8 @@ O projeto foi arquitetado com **modo de execução autônomo** (Zero Dependênci
 
 ### 1. Clonar o Repositório
 ```bash
-git clone https://github.com/SEU-USUARIO/clyvo-vet-ai.git
-cd clyvo-vet-ai
+git clone https://github.com/MCGI-PW/IoT-Clyvo-Vet_M.git
+cd IoT-Clyvo-Vet_M
 ```
 
 ### 2. Iniciar a Aplicação Web Interativa (1 Comando)
@@ -88,9 +89,9 @@ python3 -m unittest discover -s tests -p "test_*.py"
 ```
 *Saída esperada:*
 ```text
-......
+.............
 ----------------------------------------------------------------------
-Ran 6 tests in 0.003s
+Ran 13 tests in 0.007s
 
 OK
 ```
@@ -104,13 +105,50 @@ Ao abrir a interface em `http://localhost:8000`, você terá acesso a uma experi
    - **Thor (Buldogue Francês)**: Apresenta queixa de otite e prurido. A IA dispara alerta de conformação braquicefálica e vacina antirrábica atrasada.
    - **Mel (Gata Siamês Geriátrica)**: Histórico de DRC. A IA emite **Alerta Vermelho Crítico** contra prescrição de anti-inflamatórios nefrotóxicos (Meloxicam).
    - **Bob (Border Collie)**: Apresenta claudicação. A IA emite alerta preventivo de sensibilidade genética no gene **MDR1** (Glicoproteína-P).
-2. **Visualizador de Áudio e Gravação**: Suporte a microfone em tempo real ou carregamento com 1 clique de casos pré-gravados.
+2. **Transcrição ao Vivo**: clique em **Iniciar Escuta** e fale a consulta. O texto aparece em tempo real (a frase em andamento surge como legenda em itálico) e pode ser corrigido antes de processar. Também é possível colar a transcrição de uma consulta gravada ou carregar com 1 clique um dos casos de exemplo.
 3. **Abas Dinâmicas**:
    - **Prontuário SOAP**: Visão técnica estruturada completa pronta para assinatura digital do CRMV.
    - **Alertas Clínicos**: Cards com código de cores (Info, Alerta Amarelo e Perigo Vermelho).
    - **Visão do Tutor**: Mockup do WhatsApp do tutor com remédios, dosagens, horários calculados e sinais de perigo para monitorar em casa.
    - **Gestão da Clínica**: Tabela de procedimentos identificados na fala com cálculo de receita potencial adicionada.
    - **Transcrição ASR**: Texto integral da consulta com identificação dos interlocutores.
+
+---
+
+## 🤖 Como a IA Funciona (o que é real e o que é demonstração)
+
+| Etapa | Como funciona | Onde está |
+|---|---|---|
+| **Transcrição ao vivo** | Reconhecimento de voz do navegador (Web Speech API, `pt-BR`), com legenda em tempo real. Funciona no Chrome e no Edge; nos demais, cole o texto. | `app/web/app.js` |
+| **Consulta gravada (áudio)** | `POST /api/consultations/upload-audio` transcreve com o **Whisper** rodando local (pacote opcional `openai-whisper`). | `app/services/asr_service.py` |
+| **Prontuário SOAP com IA generativa** | O **Claude** (Anthropic) recebe a transcrição e devolve o SOAP em **saída estruturada** (JSON Schema igual aos modelos Pydantic). O prompt proíbe inventar diagnóstico, remédio, dose ou prazo. | `app/services/claude_extractor.py` |
+| **Plano B sem internet** | Sem chave de API, ou se o Claude falhar ou recusar, um extrator por regras classifica as frases reais da consulta (queixa, exame, diagnóstico, prescrição com dose, frequência e duração, orientações, sinais de alerta). | `app/services/local_extractor.py` |
+| **Casos de exemplo** | Thor, Mel e Bob têm um protocolo pronto (gabarito) para a demonstração offline. Com o Claude ligado, eles também passam pela IA. | `app/services/clinical_nlp.py` |
+| **Segurança clínica** | A IA simbólica cruza o SOAP com o perfil do pet (MDR1, DRC + AINE, braquicefálicos, vacinas). | `app/services/decision_support.py` |
+
+A interface mostra qual IA gerou cada prontuário: *IA: Claude*, *Extração local por regras* ou *Protocolo de demonstração*.
+
+**Ativar o Claude** (opcional):
+```bash
+pip install anthropic
+export ANTHROPIC_API_KEY="sua_chave"
+export CLYVO_IA_MODEL="claude-opus-5-5"   # opcional, este já é o padrão
+python3 run_server.py
+```
+
+**LGPD:** para a IA vão apenas a transcrição e o nome, a espécie e a raça do pet. Nome e telefone do tutor ficam de fora.
+
+### Integração com a API Java da CLYVO VET
+
+O ClyvoScribe é o serviço de IA da plataforma. A API Java ([API-Clyvo-M_Vet](https://github.com/MCGI-PW/API-Clyvo-M_Vet)) envia a transcrição da teleconsulta para cá e recebe o resumo pronto para pré-preencher o prontuário:
+
+```bash
+curl -X POST http://localhost:8000/api/transcriptions/summarize \
+  -H "Content-Type: application/json" \
+  -d '{"transcript": "Parece ser uma otite. Vou prescrever 3 gotas duas vezes ao dia por 7 dias. Retorno em 10 dias.", "contexto_paciente": "Thor (Buldogue Francês)"}'
+```
+
+Resposta: `diagnostico`, `prescricao`, `orientacoes`, `resumo_tutor`, `sinais_alerta`, `alertas_clinicos` e `fonte` (qual IA gerou). No Java, basta subir com `CLYVOSCRIBE_URL=http://localhost:8000`; se o ClyvoScribe estiver fora do ar, a API Java usa o assistente local dela e a consulta não trava.
 
 ---
 
@@ -136,8 +174,10 @@ clyvo-vet-ai/
 │   │   ├── pet.py                      # Modelos do perfil biométrico e histórico do paciente
 │   │   └── consultation.py             # Modelos de SOAP, alertas, prescrição e faturamento
 │   ├── services/
-│   │   ├── asr_service.py              # Reconhecimento de fala com suporte a simulação clínica
-│   │   ├── clinical_nlp.py             # Motor de extração SOAP em conformidade com CFMV
+│   │   ├── asr_service.py              # Transcrição de áudio gravado (Whisper) e casos de exemplo
+│   │   ├── clinical_nlp.py             # Orquestra a extração SOAP: Claude, protocolos demo ou extrator local
+│   │   ├── claude_extractor.py         # Claude (Anthropic) com saída estruturada em JSON Schema
+│   │   ├── local_extractor.py          # Extrator por regras das frases reais da consulta (sem internet)
 │   │   ├── decision_support.py         # Motor determinístico de apoio à decisão (MDR1, DRC, Raças)
 │   │   ├── tutor_care_generator.py     # Gerador de linguagem empática e tabela de oportunidades
 │   │   └── pipeline.py                 # Orquestrador central fim a fim
@@ -150,7 +190,8 @@ clyvo-vet-ai/
 │   └── pet_profiles.json               # Perfis médicos de pets para demonstração
 ├── tests/
 │   ├── test_clinical_pipeline.py       # Testes de integração do pipeline de IA
-│   └── test_decision_support.py        # Testes de unidade das regras clínicas determinísticas
+│   ├── test_decision_support.py        # Testes de unidade das regras clínicas determinísticas
+│   └── test_transcricao_real.py        # Extrator local, Claude (cliente simulado), fallback e resumo para integração
 └── scripts/
     └── package_submission.sh           # Script utilitário para gerar o .zip final da entrega
 ```
