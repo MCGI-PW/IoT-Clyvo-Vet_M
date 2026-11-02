@@ -1,127 +1,151 @@
-# Arquitetura Técnica do Sistema: ClyvoScribe AI (CLYVO VET)
+# Arquitetura: ClyvoScribe AI na plataforma CLYVO VET
 
-## 1. Visão Geral da Arquitetura
+## 1. Visão geral
 
-O **ClyvoScribe AI** é concebido como um microsserviço inteligente de alta disponibilidade desacoplado da plataforma central **CLYVO VET**, comunicando-se via API RESTful e WebSockets para streaming de áudio e dados em tempo real.
+O ClyvoScribe é um **serviço de IA em Python**, separado da aplicação principal. A CLYVO VET (API Java com Spring Boot, telas em Thymeleaf e banco Oracle) atende tutores, veterinários e clínicas, e chama o ClyvoScribe por **HTTP/JSON** quando o veterinário pede o resumo da consulta.
 
-A arquitetura adota o padrão **Clean Architecture** com separação explícita de responsabilidades:
-- **Camada de Apresentação (Interface)**: Dashboard web e mobile para o Médico-Veterinário e aplicativo móvel / portal do Tutor.
-- **Camada de Aplicação & Orquestração (API Gateway & Pipeline)**: Endpoints FastAPI com validação de tipos em Pydantic e fila assíncrona.
-- **Camada de Inteligência Artificial (Inference Engine)**:
-  - *ASR Engine*: Processamento de áudio acústico e conversão fonema-texto com diarização.
-  - *Clinical NLP Engine*: Modelo generativo instruído para extração SOAP e estruturação de prescrições.
-  - *Safety Guardrails*: Motor determinístico de regras de farmacovigilância e predisposição racial.
-- **Camada de Persistência (Database & Cache)**: Banco relacional (PostgreSQL) para dados transacionais e prontuários; Redis para fila e cache de sessões ativas de áudio.
+| Componente | Responsabilidade | Tecnologia | Repositório |
+|---|---|---|---|
+| Painel do veterinário | Teleconsulta, microfone e revisão do resumo | Thymeleaf + JavaScript (Web Speech API) | API-Clyvo-M_Vet |
+| API Java (`TranscricaoService`) | Permissão, chamada à IA, gravação no banco, fallback | Java 21, Spring Boot | API-Clyvo-M_Vet |
+| Banco | Consultas, prontuários e sugestões da IA | Oracle, migrations Flyway (V1 a V7) | API-Clyvo-M_Vet |
+| **ClyvoScribe AI** | Transcrição de arquivos, SOAP, regras clínicas, guia do tutor | Python 3.9+ (servidor nativo ou FastAPI) | **este repositório** |
+| IA generativa | Extração SOAP com saída estruturada | Claude (Anthropic) | API externa |
+
+Dentro do ClyvoScribe, as camadas ficam separadas:
+
+| Camada | Arquivos |
+|---|---|
+| Entrada (HTTP) | `run_server.py` (sem dependências) · `app/main.py` (FastAPI, mesmas rotas) |
+| Orquestração | `app/services/pipeline.py` |
+| IA | `asr_service.py` (fala) · `clinical_nlp.py` (escolhe a IA) · `claude_extractor.py` · `local_extractor.py` · `decision_support.py` · `tutor_care_generator.py` |
+| Modelos | `app/models/` (`PetHealthProfile`, `SOAPRecord`, `ClinicalAlert`, `TutorCareGuide`, `ClinicRecommendation`) |
+| Interface de demonstração | `app/web/` |
 
 ---
 
-## 2. Diagrama Arquitetural de Componentes
+## 2. Componentes e comunicação
 
 ```mermaid
-graph TB
-    subgraph Client_Layer ["Camada de Clientes"]
-        VET_APP["App / Dashboard Veterinário (Web/Tablet)"]
-        TUTOR_APP["App do Tutor / WhatsApp Integration"]
+flowchart TB
+    subgraph Navegador["Navegador do veterinário"]
+        UI["Painel da teleconsulta<br/>(Thymeleaf)"]
+        WSA["Web Speech API<br/>pt-BR, legenda ao vivo"]
+        DEMO["Interface de demonstração<br/>do ClyvoScribe (app/web)"]
     end
 
-    subgraph Gateway_Layer ["API Gateway & Ingestão"]
-        FASTAPI["FastAPI Orchestrator / Reverse Proxy"]
-        AUTH["Auth & Consent Module (LGPD)"]
+    subgraph Java["API Java CLYVO VET (Spring Boot)"]
+        CTRL["POST /web/vet/consultas/{id}/ia/resumo<br/>POST /api/appointments/{id}/ai-summary"]
+        SVC["TranscricaoService<br/>permissão + fallback"]
+        JLOCAL["AssistenteClinicoLocal<br/>(fallback do Java)"]
     end
 
-    subgraph AI_Layer ["Pipeline de Inteligência Artificial"]
-        ASR["1. ASR (Web Speech API ao vivo / Whisper para arquivos)"]
-        NLP["2. Clinical LLM (Structured SOAP Extractor)"]
-        SAFETY["3. Decision Support & Safety Engine (Regras CFMV/MDR1)"]
-        TUTOR_GEN["4. Tutor Care Generator (Plain Language + Schedule)"]
+    DB[("Oracle<br/>consulta · prontuario<br/>transcricao_consulta")]
+
+    subgraph Scribe["ClyvoScribe AI (Python)"]
+        API["POST /api/transcriptions/summarize<br/>POST /api/consultations/process"]
+        PIPE["pipeline.py"]
+        NLP["clinical_nlp.py"]
+        CL["claude_extractor.py"]
+        LX["local_extractor.py"]
+        DS["decision_support.py"]
+        TG["tutor_care_generator.py"]
+        SAMPLES[("samples/<br/>pets e casos")]
     end
 
-    subgraph Data_Layer ["Camada de Persistência & Integração"]
-        PG[("PostgreSQL: Prontuários, Pets, Consultas")]
-        REDIS[("Redis: Sessões de Áudio em Andamento")]
-        EHR_API["CLYVO VET Core EHR API"]
-    end
+    CLAUDE["Claude API<br/>(Anthropic)"]
 
-    VET_APP -->|1. Stream de Áudio / Gravação| FASTAPI
-    FASTAPI --> AUTH
-    AUTH -->|Áudio Autenticado e Consentido| ASR
-    ASR -->|Transcrição com Locutores| NLP
-    EHR_API -->|Perfil do Pet, Histórico e Vacinas| NLP
-    NLP -->|SOAP Preliminar| SAFETY
-    SAFETY -->|SOAP Validado + Alertas Clínicos| PG
-    SAFETY --> TUTOR_GEN
-    TUTOR_GEN -->|Guia Amigável & Alarmes| PG
-    PG -->|Notificação Push / Mensagem| TUTOR_APP
-    PG -->|Prontuário Estruturado para Validação| VET_APP
+    WSA --> UI
+    UI --> CTRL --> SVC
+    SVC -->|"HTTP JSON"| API
+    SVC -.->|"ClyvoScribe fora do ar"| JLOCAL
+    SVC --> DB
+    DEMO --> API
+    API --> PIPE --> NLP
+    NLP --> CL --> CLAUDE
+    NLP -.->|"sem chave ou falha"| LX
+    PIPE --> DS
+    PIPE --> TG
+    PIPE --> SAMPLES
 ```
 
 ---
 
-## 3. Diagrama de Sequência e Fluxo de Dados Fim a Fim
-
-O fluxo completo entre os usuários, a aplicação, os bancos de dados e os modelos de IA ocorre em seis etapas síncronas/assíncronas:
+## 3. Fluxo de dados fim a fim
 
 ```mermaid
 sequenceDiagram
     autonumber
-    actor V as Médico-Veterinário
-    actor T as Tutor do Pet
-    participant App as Clyvo Vet Web/App
-    participant API as Backend FastAPI
-    participant DB as Banco de Dados (EHR)
-    participant ASR as Módulo ASR (Áudio -> Texto)
-    participant LLM as Módulo Clinical NLP (LLM)
-    participant RuleEngine as Motor de Regras & Alertas
+    actor V as Veterinário
+    participant UI as Painel CLYVO VET
+    participant J as API Java
+    participant DB as Oracle
+    participant S as ClyvoScribe
+    participant C as Claude
 
-    V->>App: Inicia consulta (Pet: Thor, Buldogue Francês)
-    App->>API: GET /api/pets/{id}/context
-    API->>DB: Busca histórico, vacinas e alergias
-    DB-->>API: Retorna perfil clínico
-    API-->>App: Exibe painel pré-consulta com alertas preventivos
-
-    V->>T: Solicita consentimento de gravação ambiental
-    T-->>V: Autoriza gravação da consulta
-    V->>App: Pressiona "Iniciar Escuta Inteligente"
-    
-    Note over V,T: Diálogo médico-veterinário e exame físico ocorrem naturalmente
-    
-    V->>App: Finaliza consulta ("Encerrar Escuta")
-    App->>API: POST /api/consultations/process (Áudio ou Stream)
-    API->>ASR: Envia arquivo de áudio
-    ASR-->>API: Retorna Transcrição Integral com Diarização
-
-    API->>LLM: Prompt Contextualizado (Transcrição + Histórico do Pet)
-    LLM-->>API: Retorna JSON Estruturado (S-O-A-P + Fármacos + Exames)
-
-    API->>RuleEngine: Valida Prescrição contra Regras Clínicas (Raça / Peso)
-    RuleEngine-->>API: Anexa Alertas de Contraindicação (ex: Corticoide / MDR1)
-
-    API->>DB: Salva minuta de prontuário e guia do tutor
-    API-->>App: Renderiza Prontuário SOAP formatado na tela do Veterinário
-
-    V->>App: Revisa minuta, ajusta detalhes e clica em "Assinar Prontuário"
-    App->>API: POST /api/consultations/{id}/finalize
-    API->>DB: Prontuário assinado permanentemente
-    API-->>T: Dispara Guia de Cuidados no WhatsApp/App do Tutor
+    V->>UI: Liga o microfone na teleconsulta
+    UI->>UI: Web Speech API transcreve ao vivo
+    V->>UI: Clica em "Gerar resumo com IA"
+    UI->>J: POST /web/vet/consultas/{id}/ia/resumo (transcrição)
+    J->>J: Confere se é o veterinário ou a clínica responsável
+    J->>S: POST /api/transcriptions/summarize<br/>{transcript, contexto_paciente: "Thor (Buldogue Francês)"}
+    alt Claude configurado
+        S->>C: Transcrição + JSON Schema do SOAP
+        C-->>S: SOAP estruturado
+    else sem chave ou falha
+        S->>S: Extrator local por regras
+    end
+    S->>S: Regras clínicas (MDR1, felino renal, braquicefálico)
+    S-->>J: diagnostico, prescricao, orientacoes,<br/>resumo_tutor, sinais_alerta, alertas_clinicos, fonte
+    J->>DB: INSERT transcricao_consulta (sugestão + fonte_ia)
+    J-->>UI: Formulário pré-preenchido
+    V->>UI: Revisa, corrige e conclui o atendimento
+    UI->>J: Concluir consulta
+    J->>DB: INSERT prontuario · consulta = CONCLUIDA
 ```
 
----
-
-## 4. Estratégia de Resiliência e Operação Offline
-
-Clínicas veterinárias frequentemente enfrentam oscilações de sinal de internet em salas de exame com blindagem ou subsolos. Para garantir operação ininterrupta:
-
-1. **Local-First Audio Buffer (IndexedDB no Navegador / SQLite no App Mobile)**:
-   - Os chunks de áudio são gravados e persistidos localmente no dispositivo durante a consulta em formato WebM/Opus comprimido.
-   - Em caso de perda repentina de conexão, o áudio permanece íntegro na memória do cliente e é reenviado automaticamente assim que o link for restaurado.
-2. **Fallback Híbrido de Modelos**:
-   - *Modo Nuvem (Online)*: ASR via Whisper-Large / Gemini Multimodal com processamento assíncrono em GPU na nuvem.
-   - *Modo Local / Borda (Edge Fallback)*: Para clínicas sem conexão externa estável, suporte à execução local do Whisper-Tiny / Small via ONNX Runtime na máquina da clínica.
+Se o ClyvoScribe não responder (timeout de 90 s, erro HTTP ou rede), a API Java usa o `AssistenteClinicoLocal` e grava a fonte `LOCAL`.
 
 ---
 
-## 5. Segurança da Informação, LGPD e Padrões Médicos
+## 4. Endpoints do ClyvoScribe
 
-- **Criptografia Ponta a Ponta**: Áudios são trafegados via TLS 1.3 e armazenados em repouso com algoritmo AES-256.
-- **Anonimização de PII (Personally Identifiable Information)**: O módulo de pré-processamento realiza higienização de nomes completos, CPFs, placas de carro ou números de cartão mencionados na consulta antes do envio ao motor generativo.
-- **Padrão SOAP Padronizado**: Estruturação estrita de acordo com as normas da *American Animal Hospital Association (AAHA)* e do *Conselho Federal de Medicina Veterinária (CFMV)*.
+| Método e rota | Uso | Servidor nativo | FastAPI |
+|---|---|:---:|:---:|
+| `GET /api/health` | Saúde do serviço | ✅ | ✅ |
+| `GET /api/pets` · `GET /api/pets/{id}` | Perfis de demonstração | ✅ | ✅ |
+| `GET /api/cases` | Casos de exemplo | ✅ | ✅ |
+| `POST /api/consultations/process` | Pipeline completo (SOAP, alertas, guia do tutor, clínica) para a interface de demonstração | ✅ | ✅ |
+| `POST /api/transcriptions/summarize` | **Integração com a API Java** | ✅ | ✅ |
+| `POST /api/consultations/upload-audio` | Áudio gravado → Whisper → pipeline | — | ✅ |
+| `POST /api/consultations/finalize` | Aprovação da minuta na demonstração (não grava nada) | ✅ | ✅ |
+
+Contratos em [`DATA_DICTIONARY.md`](DATA_DICTIONARY.md).
+
+---
+
+## 5. Resiliência
+
+| Falha | O que acontece |
+|---|---|
+| Sem `ANTHROPIC_API_KEY` ou sem o pacote `anthropic` | O ClyvoScribe usa o extrator local; `fonte = LOCAL:extracao` |
+| Claude falha, recusa ou trunca a resposta | Log de aviso e extrator local |
+| ClyvoScribe fora do ar ou lento | A API Java usa o assistente local dela; `fonte_ia = LOCAL` |
+| Navegador sem Web Speech API, ou fora de HTTPS | A interface avisa, e o veterinário cola a transcrição |
+| Whisper não instalado | `upload-audio` responde com a instrução de instalação |
+
+---
+
+## 6. Segurança e LGPD
+
+- **Dados mínimos para a IA:** transcrição, nome, espécie e raça do pet. O contexto montado pela API Java (`contextoDoPaciente`) não inclui dados do tutor.
+- **Autorização:** só o veterinário ou a clínica responsáveis pela consulta geram ou leem o resumo (checado na API Java).
+- **Transporte:** a aplicação online da CLYVO VET usa HTTPS (certificado Let's Encrypt). A chave do Claude fica em variável de ambiente, nunca no código.
+- **Humano no controle:** a sugestão fica em `transcricao_consulta`; o `prontuario` só é criado quando o veterinário conclui o atendimento.
+
+---
+
+## 7. Implantação
+
+- **Hoje:** o ClyvoScribe roda localmente (`python3 run_server.py`, porta 8000), e a API Java aponta para ele com `CLYVOSCRIBE_URL`. A versão online da CLYVO VET (Azure Container Instances) roda sem `CLYVOSCRIBE_URL`, com o assistente local do Java.
+- **Planejado:** publicar o ClyvoScribe como mais um container no mesmo grupo do Azure, com `CLYVOSCRIBE_URL=http://localhost:8000`.

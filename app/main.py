@@ -130,13 +130,14 @@ def summarize_transcription(request: TranscriptionSummaryRequest):
 @app.post("/api/consultations/finalize")
 def finalize_consultation(req: FinalizeConsultationRequest):
     """
-    Valida e assina digitalmente a minuta de prontuário veterinário.
+    Aprovação da minuta na demonstração local. Não grava nada: na plataforma, quem persiste
+    o resumo (tabela TRANSCRICAO_CONSULTA, Oracle) e o prontuário é a API Java da CLYVO VET.
     """
     return {
         "status": "sucesso",
         "consultation_id": req.consultation_id,
         "assinado_por": req.crmv,
-        "mensagem": "Prontuário assinado digitalmente com sucesso e arquivado no histórico permanente CLYVO VET. Guia pós-consulta enviado ao tutor via WhatsApp/App."
+        "mensagem": "Minuta aprovada pelo veterinário (demonstração, sem persistência neste serviço)."
     }
 
 

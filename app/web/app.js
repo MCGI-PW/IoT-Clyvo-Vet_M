@@ -83,7 +83,7 @@ function initControls() {
 
   const btnSign = document.getElementById("btnSignSoap");
   btnSign.addEventListener("click", () => {
-    alert("✅ Prontuário assinado digitalmente com sucesso pelo Dr(a). Veterinário(a) (CRMV-SP 45.892)!\n\nO documento foi registrado no prontuário eletrônico permanente da CLYVO VET e o Guia do Tutor foi disparado via WhatsApp.");
+    alert("✅ Minuta revisada e aprovada pelo(a) veterinário(a).\n\nNesta demonstração, nada é gravado. Na plataforma CLYVO VET, o resumo é salvo no Oracle pela API Java e só entra no prontuário quando o veterinário finaliza o atendimento.");
   });
 }
 

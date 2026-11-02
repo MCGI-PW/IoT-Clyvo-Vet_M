@@ -74,6 +74,9 @@ def frequencia_em_horas(frase_norm: str) -> Optional[int]:
         return 12
     if "de 8 em 8" in frase_norm:
         return 8
+    # "1 comprimido por dia", "uma gota ao dia": dose diária sem número de vezes
+    if re.search(r"\b(?:por|ao) dia\b", frase_norm):
+        return 24
     return None
 
 
@@ -130,10 +133,24 @@ def _dosagem(frase_norm: str, frase: str) -> str:
     return f"{m.group(1)} {m.group(2)}" if m else frase
 
 
+# Verbo de prescrição seguido do remédio, que termina na vírgula ou na dose ("3 gotas", "1 comprimido")
+_VERBO_PRESCRICAO = re.compile(
+    r"(?:prescrever|prescrevo|receitar|receito|receitei|vou passar|vou dar|passar)\s+"
+    r"(?:o |a |um |uma )?(.+?)(?=,|\s+(?:\d|um |uma |dois |duas |tres |três )|\.|$)", re.I)
+
+
+def _medicamento(frase: str) -> str:
+    """Nome do remédio dito na frase; sem verbo de prescrição reconhecível, fica a frase inteira."""
+    m = _VERBO_PRESCRICAO.search(frase)
+    nome = m.group(1).strip() if m else ""
+    return nome[0].upper() + nome[1:] if nome else frase
+
+
 def _prescricao(frase: str) -> PrescriptionItem:
     norm = normalizar(frase)
     return PrescriptionItem(
-        principio_ativo=frase,
+        principio_ativo=_medicamento(frase),
+        instrucoes_especiais=frase,
         forma_farmaceutica=_forma(norm),
         dosagem=_dosagem(norm, frase),
         frequencia_horas=frequencia_em_horas(norm),
