@@ -1,10 +1,42 @@
 // CLYVO VET — ClyvoScribe AI Client Logic
+
+// Tema claro/escuro, igual ao da plataforma CLYVO VET
+function getStoredTheme() {
+  try {
+    const saved = localStorage.getItem("clyvo_theme");
+    if (saved) return saved;
+  } catch (e) {
+    // localStorage indisponível (modo privado): segue a preferência do sistema
+  }
+  return window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
+}
+
+function applyTheme(theme) {
+  document.documentElement.setAttribute("data-theme", theme);
+  try {
+    localStorage.setItem("clyvo_theme", theme);
+  } catch (e) {
+    // preferência só para esta visita
+  }
+  document.querySelectorAll(".theme-toggle").forEach(btn => {
+    const dark = theme === "dark";
+    btn.textContent = dark ? "☀️" : "🌙";
+    btn.setAttribute("title", btn.dataset[dark ? "labelLight" : "labelDark"] || "");
+    btn.setAttribute("aria-pressed", String(dark));
+  });
+}
+
+applyTheme(getStoredTheme());
 let currentPetId = "PET-8921";
 let currentSelectedCase = "CASE-THOR-OTITE";
 let isRecording = false;
 let recognition = null;
 
 document.addEventListener("DOMContentLoaded", () => {
+  applyTheme(getStoredTheme());
+  document.querySelectorAll(".theme-toggle").forEach(btn => btn.addEventListener("click", () => {
+    applyTheme(document.documentElement.getAttribute("data-theme") === "dark" ? "light" : "dark");
+  }));
   initTabs();
   initPetSelector();
   initSampleButtons();
@@ -102,8 +134,10 @@ async function loadPetData(petId) {
     document.getElementById("petPhone").innerText = pet.tutor_telefone;
     document.getElementById("petAvatar").innerText = pet.especie === "felina" ? "🐱" : "🐶";
 
-    const comorbText = pet.comorbidades_cronicas.length > 0 ? pet.comorbidades_cronicas.join(", ") : "Nenhuma comorbidade prévia";
-    document.getElementById("petComorbidities").innerText = comorbText;
+    const comorbText = pet.comorbidades_cronicas.length > 0 ? pet.comorbidades_cronicas.map(c => c.replace(/_/g, " ")).join(", ") : "Nenhuma comorbidade prévia";
+    const comorbEl = document.getElementById("petComorbidities");
+    comorbEl.innerText = comorbText;
+    comorbEl.className = pet.comorbidades_cronicas.length > 0 ? "text-danger" : "text-muted";
 
     const vacAtrasada = pet.historico_vacinal.find(v => v.status === "atrasada");
     const vacBadge = document.getElementById("petVaccineStatus");
@@ -332,7 +366,7 @@ function renderConsultationResult(data) {
   // Avaliação
   const diagList = document.getElementById("soapDiagnosticos");
   diagList.innerHTML = data.soap.assessment.hipoteses_diagnosticas
-    .map(d => `<li style="font-weight: 600; color: #0f172a; margin-bottom: 3px;">${d}</li>`)
+    .map(d => `<li class="diag-item">${d}</li>`)
     .join("");
 
   const gravBadge = document.getElementById("soapGravidade");
@@ -347,7 +381,7 @@ function renderConsultationResult(data) {
   if (data.soap.plan.prescricoes_farmacologicas.length > 0) {
     rxTbody.innerHTML = data.soap.plan.prescricoes_farmacologicas.map(rx => `
       <tr>
-        <td><strong>${rx.nome_comercial || rx.principio_ativo}</strong><br><small style="color:#64748b;">${rx.forma_farmaceutica}</small></td>
+        <td><strong>${rx.nome_comercial || rx.principio_ativo}</strong><br><small>${rx.forma_farmaceutica}</small></td>
         <td>${rx.dosagem}</td>
         <td>${rx.frequencia_horas ? `A cada ${rx.frequencia_horas}h` : "-"}</td>
         <td>${rx.duracao_dias ? `${rx.duracao_dias} dias` : "-"}</td>
@@ -355,7 +389,7 @@ function renderConsultationResult(data) {
       </tr>
     `).join("");
   } else {
-    rxTbody.innerHTML = `<tr><td colspan="5" style="text-align: center; color: var(--text-muted);">Nenhum medicamento prescrito.</td></tr>`;
+    rxTbody.innerHTML = `<tr><td colspan="5" class="empty-row">Nenhum medicamento prescrito.</td></tr>`;
   }
 
   // Exames
@@ -378,17 +412,17 @@ function renderConsultationResult(data) {
       const icon = a.nivel === "perigo_vermelho" ? "🚨" : (a.nivel === "alerta_amarelo" ? "⚠️" : "ℹ️");
       return `
         <div class="alert-card ${cls}">
-          <div style="font-size: 1.5rem;">${icon}</div>
+          <div class="alert-icon">${icon}</div>
           <div>
-            <strong style="text-transform: uppercase; font-size: 0.8rem;">${a.tipo.replace("_", " ")}</strong>
-            <p style="margin-top: 0.2rem; font-size: 0.9rem;">${a.mensagem}</p>
-            <small style="opacity: 0.8;">Gatilho: ${a.fator_desencadeante}</small>
+            <strong class="alert-type">${a.tipo.replace("_", " ")}</strong>
+            <p class="alert-message">${a.mensagem}</p>
+            <small class="alert-trigger">Gatilho: ${a.fator_desencadeante}</small>
           </div>
         </div>
       `;
     }).join("");
   } else {
-    alertContainer.innerHTML = `<div style="text-align: center; color: #166534; padding: 2rem;">✅ Nenhum alerta ou contraindicação detectada. Prescrição segura!</div>`;
+    alertContainer.innerHTML = `<div class="alert-safe">✅ Nenhum alerta ou contraindicação detectada.</div>`;
   }
 
   // 3. Visão do Tutor (WhatsApp)
@@ -397,11 +431,11 @@ function renderConsultationResult(data) {
   
   const waRemedios = document.getElementById("waRemedios");
   waRemedios.innerHTML = data.tutor_guide.cronograma_medicamentos.map(m => `
-    <div style="background: #f8fafc; border-left: 3px solid #10b981; padding: 0.5rem; margin-bottom: 0.4rem; border-radius: 4px;">
+    <div class="wa-med">
       <strong>💊 ${m.remedio}</strong><br>
-      <small style="color: #334155;">${m.como_dar}</small><br>
-      <span style="color: #0369a1; font-weight: 600; font-size: 0.8rem;">⏰ Horários: ${m.horarios_sugeridos.join(" e ")}</span> • 
-      <span style="color: #64748b; font-size: 0.75rem;">${m.duracao}</span>
+      <small>${m.como_dar}</small><br>
+      <span class="wa-med-hours">⏰ Horários: ${m.horarios_sugeridos.join(" e ")}</span> •
+      <span class="wa-med-duration">${m.duracao}</span>
     </div>
   `).join("");
 
@@ -415,18 +449,18 @@ function renderConsultationResult(data) {
   if (clinicRec.itens_faturaveis_sugeridos.length > 0) {
     clinicTbody.innerHTML = clinicRec.itens_faturaveis_sugeridos.map(it => `
       <tr>
-        <td><strong>${it.item}</strong><br><small style="color:#64748b;">${it.justificativa_clinica}</small></td>
+        <td><strong>${it.item}</strong><br><small>${it.justificativa_clinica}</small></td>
         <td><span class="pet-badge badge-info">${it.categoria}</span></td>
-        <td style="color:#059669; font-weight:700;">R$ ${it.valor_estimado_reais.toFixed(2).replace(".", ",")}</td>
+        <td class="money">R$ ${it.valor_estimado_reais.toFixed(2).replace(".", ",")}</td>
       </tr>
     `).join("");
   } else {
-    clinicTbody.innerHTML = `<tr><td colspan="3" style="text-align: center; color: var(--text-muted);">Nenhum item sugerido.</td></tr>`;
+    clinicTbody.innerHTML = `<tr><td colspan="3" class="empty-row">Nenhum item sugerido.</td></tr>`;
   }
   document.getElementById("clinicTotalValue").innerText = `R$ ${clinicRec.valor_total_potencial_reais.toFixed(2).replace(".", ",")}`;
 
   const clinicActions = document.getElementById("clinicActionsList");
-  clinicActions.innerHTML = clinicRec.acoes_de_fidelizacao.map(a => `<li style="margin-bottom: 5px;">${a}</li>`).join("");
+  clinicActions.innerHTML = clinicRec.acoes_de_fidelizacao.map(a => `<li>${a}</li>`).join("");
 
   // 5. Transcrição ASR
   document.getElementById("rawTranscriptText").innerText = data.raw_transcript;
