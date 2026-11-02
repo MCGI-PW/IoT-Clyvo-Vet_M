@@ -1,90 +1,81 @@
-# Roteiro do Vídeo Pitch (5 Minutos): ClyvoScribe AI para CLYVO VET
+# Roteiro do Vídeo Pitch (5 minutos): ClyvoScribe AI
 
-> **Instruções Gerais de Gravação**:
-> - **Duração Total**: Exatamente entre 04:45 e 05:15 (alvo ideal: 5 minutos cravados).
-> - **Formato de Publicação**: YouTube (configurar visibilidade como **Não Listado / Unlisted**).
-> - **Configuração de Cena Recomendada**: Alternar entre câmera do apresentador (webcam no canto ou tela cheia na introdução/conclusão) e gravação de tela exibindo os slides e a demonstração prática da aplicação web.
+> **Formato:** YouTube, visibilidade **Não listado**. Duração entre 4:45 e 5:15.
+> **Cena:** câmera do apresentador na abertura e no fechamento; no meio, gravação de tela.
+> **Antes de gravar:** suba os dois serviços como no README ("Integrado com a CLYVO VET"), use o **Chrome** e deixe o microfone permitido em `localhost`. Os dados de demonstração da CLYVO VET já trazem um atendimento agendado do Thor (Golden Retriever) com o Dr. Carlos.
+
+| Tempo | Bloco | Tela |
+|---|---|---|
+| 0:00–0:40 | 1. Problema | Câmera |
+| 0:40–1:40 | 2. Demonstração: ClyvoScribe | `http://localhost:8000` |
+| 1:40–3:00 | 3. Demonstração: integrado à CLYVO VET | `http://localhost:8081` (painel do veterinário) |
+| 3:00–4:10 | 4. Como a IA funciona | Diagrama do README |
+| 4:10–5:00 | 5. Resultados, valor e fechamento | Tabela de resultados do README + câmera |
 
 ---
 
-## Estrutura Cronometrada do Pitch
+### Bloco 1: o problema (0:00–0:40)
+**[Câmera]**
 
+> *"Numa consulta veterinária, o profissional divide a atenção entre o animal e o teclado. O prontuário sai às pressas e incompleto. O tutor vai embora sem lembrar a dose nem o horário do remédio. E um risco sério, como um medicamento perigoso para a raça do cão, depende só da memória de quem está atendendo.*
+> *Para a CLYVO VET, criamos o **ClyvoScribe AI**: a IA ouve a consulta, escreve o prontuário, confere a segurança da prescrição e explica tudo para o tutor. E o veterinário continua no controle."*
+
+### Bloco 2: o ClyvoScribe em ação (0:40–1:40)
+**[Tela: interface do ClyvoScribe]**
+
+> *"Este é o ClyvoScribe. Vou escolher o Bob, um Border Collie, e carregar a consulta dele."*
+
+- Selecionar **Bob** e carregar o caso de exemplo. Processar.
+- Mostrar a aba **Prontuário SOAP**: queixa, exame, diagnóstico e prescrição com dose, intervalo e duração. Apontar a etiqueta da **fonte da IA**.
+- Mostrar a aba **Alertas Clínicos**:
+
+> *"Na conversa, o tutor citou ivermectina e loperamida. Border Collie tem alta chance de mutação no gene MDR1, e esses remédios podem causar neurotoxicidade. O sistema marcou em vermelho, sem ninguém pedir."*
+
+- Mostrar rapidamente a **Visão do Tutor** (horários e sinais de alerta) e a **Gestão da Clínica** (raio-x e retorno sugeridos).
+
+### Bloco 3: integrado à CLYVO VET (1:40–3:00)
+**[Tela: painel do veterinário na CLYVO VET]**
+
+> *"Agora, dentro da plataforma. Estou logado como o Dr. Carlos, no atendimento do Thor."*
+
+- Clicar em **🎙️ Iniciar transcrição** e falar (devagar, frase a frase):
+
+```text
+O Thor está coçando muito a orelha direita há três dias.
+A orelha está vermelha e com secreção. Parece ser uma otite externa.
+Vou prescrever solução otológica, 3 gotas duas vezes ao dia por 7 dias.
+Mantenha a orelha seca. Se ele tiver febre ou parar de comer, volte antes.
+Retorno em 10 dias.
 ```
-[00:00 - 00:50] BLOCO 1: O Problema Real e a Oportunidade na Consulta Veterinária (50s)
-[00:50 - 02:00] BLOCO 2: A Solução e Demonstração Prática Funcional (70s)
-[00:02 - 03:15] BLOCO 3: Arquitetura Técnica e o Papel da IA (75s)
-[03:15 - 04:15] BLOCO 4: Fluxo de Dados, Segurança e Apoio à Decisão (60s)
-[04:15 - 05:00] BLOCO 5: Impacto de Negócio (Tutor, Clínica, Pet) e Conclusão (45s)
-```
+
+> *"O texto aparece enquanto eu falo. Quando eu peço o resumo, a API Java manda a transcrição, só com o nome e a raça do pet, para o ClyvoScribe."*
+
+- Clicar em **⏹ Parar transcrição** e depois em **✨ Gerar resumo com IA**. Mostrar diagnóstico, prescrição, orientações, resumo para o tutor e sinais de alerta preenchidos.
+
+> *"A sugestão foi gravada no Oracle, na tabela de transcrições. Mas ela ainda não é prontuário: eu reviso, corrijo se precisar, e só quando concluo o atendimento ela vira o registro oficial, que o tutor vê no painel dele."*
+
+- Concluir o atendimento.
+
+### Bloco 4: como a IA funciona (3:00–4:10)
+**[Tela: diagrama de arquitetura do README]**
+
+> *"São três camadas.*
+> *Na primeira, o reconhecimento de fala do navegador transcreve a consulta em português, ao vivo. Áudios gravados podem passar pelo Whisper.*
+> *Na segunda, o Claude, da Anthropic, organiza a conversa no padrão SOAP, com saída estruturada: a resposta sempre chega no mesmo formato, e o prompt proíbe inventar remédio, dose ou prazo. Sem internet ou sem chave, um extrator local por regras assume e usa só as frases que foram ditas.*
+> *Na terceira, regras clínicas determinísticas cruzam a prescrição com a espécie, a raça, as doenças crônicas e as vacinas do pet. Contraindicação grave não fica a cargo de probabilidade.*
+> *E se o ClyvoScribe cair, a API Java usa o assistente local dela: a consulta nunca trava. Cada resumo guarda qual IA o gerou."*
+
+### Bloco 5: resultados e fechamento (4:10–5:00)
+**[Tela: seção "Resultados parciais" do README, depois câmera]**
+
+> *"Testamos com três casos reais de clínica e com consultas livres. A IA detectou a contraindicação de ivermectina no Border Collie, o anti-inflamatório na gata com doença renal e a vacina atrasada do Thor. São 14 testes automatizados, inclusive garantindo que nada é inventado numa consulta livre.*
+> *Para o veterinário, menos digitação e mais atenção ao paciente. Para o pet, mais segurança. Para o tutor, orientações claras. E para a clínica, exames e retornos que não se perdem.*
+> *O código e a documentação estão no nosso GitHub. Obrigado!"*
 
 ---
 
-## Roteiro Teleprompter & Direção de Cena
-
-### BLOCO 1: O Problema Real na Jornada Clínica (00:00 – 00:50)
-**[Câmera em tela cheia no apresentador, tom seguro e empático]**
-
-> *"Olá! Você já reparou como funciona uma consulta veterinária típica hoje?*  
-> *O tutor chega aflito com o seu pet doente. O médico-veterinário acolhe o paciente, mas logo é obrigado a virar de costas para o animal e passar até 40% do tempo da consulta digitando anotações em um prontuário eletrônico lento e engessado.*  
-> *Essa distração não é apenas desconfortável: ela aumenta o estresse do animal na mesa de exame e gera fadiga mental no profissional.*  
-> *Para piorar, do outro lado, o tutor sai da clínica sobrecarregado, esquecendo mais da metade das orientações verbais sobre horários de remédios e sinais de perigo.*  
-> *Na CLYVO VET, nós decidimos mudar essa realidade radicalmente com Inteligência Artificial: apresentamos o **ClyvoScribe AI**, a inteligência clínica ambiental que devolve a atenção do veterinário para o que realmente importa — a vida do paciente."*
-
----
-
-### BLOCO 2: A Solução & Demonstração Funcional Prática (00:50 – 02:00)
-**[Corta para gravação de tela: mostrando a interface web do ClyvoScribe AI em execução]**
-
-> *"Vejam como funciona na prática.*  
-> *Aqui no painel da CLYVO VET, o veterinário inicia o atendimento do paciente — neste exemplo, o cão Thor, um Buldogue Francês de 3 anos.*  
-> *Com o consentimento do tutor, o veterinário simplesmente clica em **'Iniciar Escuta Inteligente'**.*  
-> *Durante toda a conversa e o exame físico, ninguém digita uma única linha. O sistema capta o diálogo ambiental em tempo real.*  
-> *Ao clicar em **'Encerrar e Processar'**, a nossa IA entra em ação instantaneamente:*  
-> *1. O motor de reconhecimento de fala transcreve o diálogo médico com alta fidelidade terminológica.*  
-> *2. Em segundos, o modelo de linguagem estruturado organiza toda a consulta no padrão ouro internacional **SOAP**: Subjetivo com as queixas do tutor, Objetivo com os dados do exame físico e temperatura, Avaliação com o diagnóstico de otite e dermatite, e Plano com a prescrição precisa de medicamentos e exames.*  
-> *3. E notem o mais impressionante: o sistema já disparou automaticamente alertas de segurança farmacológica com base na raça e peso do paciente!"*
-
----
-
-### BLOCO 3: Arquitetura Técnica e o Papel da IA (02:00 – 03:15)
-**[Tela dividida: Slide com o Diagrama de Arquitetura Mermaid e destaques visuais]**
-
-> *"Mas como essa mágica acontece debaixo do capô?*  
-> *O ClyvoScribe AI não é apenas um transcritor comum de áudio; ele opera com uma **arquitetura híbrida em três camadas** integrada ao backend FastAPI da CLYVO VET:*  
-> *Na **Primeira Camada**, o reconhecimento de voz transcreve a consulta ao vivo em português, com a legenda aparecendo na tela enquanto se fala; consultas gravadas são transcritas pelo Whisper.*  
-> *Na **Segunda Camada**, os textos diarizados são enriquecidos com o prontuário pregresso do pet e processados pelo Claude, da Anthropic, com **Structured Outputs** (JSON Schema dos modelos Pydantic). Isso garante zero alucinações sintáticas e extrai entidades clínicas perfeitamente tipadas.*  
-> *E na **Terceira Camada**, implementamos um **Motor Determinístico de Regras Clínicas**. Nós não deixamos dosagens e contraindicações a cargo de probabilidades estatísticas. Essa camada cruza os fármacos prescritos com diretrizes da WSAVA e do CFMV, validando pesos, toxicidades raciais como a mutação MDR1 e interações medicamentosas.*  
-> *Essa união entre IA Generativa e IA Simbólica Determinística entrega a máxima inovação com 100% de segurança médica."*
-
----
-
-### BLOCO 4: Fluxo de Dados, Segurança e Personalização (03:15 – 04:15)
-**[Slide mostrando o Fluxo de Dados e a tela 'Visão do Tutor' no protótipo]**
-
-> *"O fluxo de dados foi desenhado respeitando rigorosamente a LGPD e o sigilo veterinário.*  
-> *Os dados brutos de áudio trafegam criptografados e passam por anonimização prévia de informações pessoais sensíveis.*  
-> *A personalização é o coração do sistema:*  
-> *A partir do mesmo atendimento, a IA gera simultaneamente duas saídas de alto valor:*  
-> *Primeiro, a **Visão Clínica Técnica**, validada e assinada pelo veterinário com seu número de CRMV.*  
-> *Segundo, a **Visão do Tutor**: um guia humanizado gerado pela IA em linguagem acolhedora, enviado diretamente para o WhatsApp ou app do tutor. Ele contém uma tabela clara de medicação, horários organizados, alarmes configurados e alertas do que observar em casa.*  
-> *Isso acaba com a caligrafia ilegível e multiplica a adesão ao tratamento!"*
-
----
-
-### BLOCO 5: Benefícios de Negócio e Conclusão (04:15 – 05:00)
-**[Câmera volta para o apresentador com slide de métricas ao fundo]**
-
-> *"Os resultados desse ecossistema transformam o modelo de negócio da clínica:*  
-> *Para a **Clínica**, reduzimos em até 70% o tempo administrativo por paciente, permitindo atender mais pets sem sobrecarga, além de sugerir de forma proativa faturamento de exames complementares e retornos que antes eram esquecidos.*  
-> *Para o **Tutor**, entregamos clareza, segurança e tranquilidade no cuidado diário do seu melhor amigo.*  
-> *E para o **Pet**, garantimos um veterinário com olhos, mãos e mente 100% focados nele durante todo o exame.*  
-> *O ClyvoScribe AI une a fronteira da Inteligência Artificial à compaixão veterinária. O código-fonte, a documentação de arquitetura e o protótipo executável estão disponíveis no nosso repositório no GitHub.*  
-> *Muito obrigado!"*
-
----
-
-## Dicas para o Vídeo Tirar Nota Máxima (20/20 Pontos)
-1. **Áudio Nítido**: Use um fone com microfone bom ou microfone de lapela.
-2. **Iluminação**: Garanta que seu rosto esteja bem iluminado se usar câmera.
-3. **Fluidez**: Ensaiar o texto 2 a 3 vezes antes de gravar garante que o tempo fique exatamente na faixa de 4:50 a 5:05.
-4. **Demonstração Funcional**: Mostre a tela do dashboard web do projeto (`http://localhost:8000`) rodando a transcrição e gerando o SOAP ao vivo durante o Bloco 2!
+## Dicas
+1. **Ensaie uma vez cronometrando.** Se passar de 5:15, encurte o bloco 2.
+2. **Áudio:** use fone com microfone e fale pausado no bloco 3, para a legenda acompanhar.
+3. **Plano B do bloco 3:** se o microfone falhar, cole o texto do roteiro na caixa de transcrição. O resultado é o mesmo.
+4. **Mostre a fonte da IA** nos dois blocos de demonstração: é a prova da integração.

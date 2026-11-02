@@ -68,6 +68,9 @@ class TestExtratorLocal(unittest.TestCase):
         rx = soap.plan.prescricoes_farmacologicas
         self.assertEqual(len(rx), 1)
         self.assertEqual((rx[0].frequencia_horas, rx[0].duracao_dias), (24, 7))
+        # O remédio sai limpo; a frase completa fica nas instruções para o veterinário conferir
+        self.assertEqual(rx[0].principio_ativo, "Probiótico")
+        self.assertIn("uma vez ao dia", rx[0].instrucoes_especiais)
         self.assertEqual(soap.plan.retorno_agendado_dias, 5)
         self.assertTrue(any("hemograma" in e for e in soap.plan.exames_solicitados))
         self.assertTrue(any("sangue nas fezes" in s for s in soap.sinais_alerta))
@@ -77,9 +80,15 @@ class TestExtratorLocal(unittest.TestCase):
     def test_frequencia_e_duracao_em_texto_falado(self):
         self.assertEqual(frequencia_em_horas("3 gotas duas vezes ao dia"), 12)
         self.assertEqual(frequencia_em_horas("um comprimido a cada 8 horas"), 8)
+        self.assertEqual(frequencia_em_horas("1 comprimido por dia"), 24)
         self.assertIsNone(frequencia_em_horas("aplicar a pomada"))
         self.assertEqual(duracao_em_dias("por sete dias"), 7)
         self.assertEqual(duracao_em_dias("durante duas semanas"), 14)
+
+    def test_nome_do_remedio_sem_a_frase_inteira(self):
+        rx = extrair_soap("Vou passar ivermectina 1 comprimido por dia por 5 dias.", PET).plan.prescricoes_farmacologicas
+        self.assertEqual((rx[0].principio_ativo, rx[0].dosagem), ("Ivermectina", "1 comprimido"))
+        self.assertEqual((rx[0].frequencia_horas, rx[0].duracao_dias), (24, 5))
 
     def test_sem_retorno_falado_nao_inventa_prazo(self):
         result = clyvoscribe_pipeline.run_consultation_pipeline(

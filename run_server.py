@@ -122,7 +122,8 @@ class NativeClyvoHandler(BaseHTTPRequestHandler):
                 self._send_json({
                     "status": "sucesso",
                     "consultation_id": payload.get("consultation_id"),
-                    "mensagem": "Prontuário assinado digitalmente com sucesso pelo Médico-Veterinário!"
+                    "assinado_por": payload.get("crmv"),
+                    "mensagem": "Minuta aprovada pelo veterinário (demonstração, sem persistência neste serviço)."
                 })
             except Exception as e:
                 self._send_error(400, str(e))

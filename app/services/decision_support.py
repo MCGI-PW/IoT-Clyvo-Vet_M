@@ -7,7 +7,7 @@ from app.models.consultation import SOAPRecord, ClinicalAlert
 class DecisionSupportEngine:
     """
     Guardião de segurança clínica determinística (Symbolic AI).
-    Não depende de probabilidades estocásticas de LLM, garantindo 100% de confiabilidade.
+    Não depende de probabilidades do LLM: a mesma entrada gera sempre o mesmo alerta, e cada regra é auditável.
     """
 
     HERDING_BREEDS = [

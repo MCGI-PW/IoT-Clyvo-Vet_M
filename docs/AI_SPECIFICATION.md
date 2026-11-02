@@ -1,101 +1,114 @@
-# Especificação Técnica do Componente de Inteligência Artificial: ClyvoScribe AI (CLYVO VET)
+# Especificação do Componente de IA: ClyvoScribe AI (CLYVO VET)
 
-## 1. Definição do Problema de Negócio
-
-### 1.1 O Contexto da Jornada de Cuidado Veterinário
-Na rotina clínica de pequenos e grandes animais, a consulta veterinária é o ponto nevrálgico onde se concentram a anamnese, o exame físico, a formulação de hipóteses diagnósticas e a orientação terapêutica. No entanto, o fluxo tradicional enfrenta gargalos severos que impactam negativamente todos os participantes da jornada:
-
-1. **A Sobrecarga Cognitiva e Administrativa do Médico-Veterinário (Burnout Clínico)**:
-   - Um veterinário despende, em média, de **30% a 45% do tempo de cada consulta** digitando anotações manuais em sistemas legados de prontuário eletrônico.
-   - Enquanto digita, o profissional desvia a atenção visual e tátil do animal. Animais estressados em ambiente ambulatorial exigem contenção atenta; a distração com digitação eleva o risco de acidentes e prejudica a acurácia do exame físico.
-   - No final do dia, o acúmulo de prontuários pendentes ("pijama time") gera exaustão e leva a anotações telegráficas, incompletas ou com termos abreviados que não compõem um histórico longitudinal confiável.
-
-2. **A "Falha de Adesão" do Tutor (Assimetria de Comunicação)**:
-   - Durante a consulta, o tutor costuma estar emocionalmente abalado pela doença do pet e sobrecarregado pela quantidade de informações fornecidas oralmente.
-   - Pesquisas clínicas indicam que **mais de 50% das instruções verbais são esquecidas ou mal interpretadas** minutos após sair da clínica (dosagens incorretas, horários trocados, interrupção precoce de antibióticos).
-   - O resultado é o fracasso terapêutico, retorno por recidivas e perda de confiança no tratamento.
-
-3. **Inconsistência Longitudinal e Perda de Receita para a Clínica**:
-   - Falta de integração entre a fala espontânea na consulta e os alertas de saúde preventiva (vacinas em atraso, limpezas dentárias, exames laboratoriais complementares citados pelo veterinário mas não cadastrados no sistema de cobrança/agendamento).
-   - Perda de faturamento por subnotificação de procedimentos e baixa taxa de comparecimento aos retornos recomendados.
+Este documento nasceu na Sprint 3, quando definimos o problema, os dados e a abordagem de IA, e foi atualizado na Sprint 4 com o que foi implementado. Cada item mostra onde está no código. O que ainda não existe aparece como **planejado**.
 
 ---
 
-## 2. Como a IA Agrega Valor (Tutor, Clínica e Pet)
+## 1. Problema de negócio
 
-A solução **ClyvoScribe AI** é um ecossistema de **Inteligência Clínica Ambiental e Apoio à Decisão** integrado à plataforma **CLYVO VET**.
+A consulta é o momento em que se concentram a conversa com o tutor, o exame, o diagnóstico e a orientação. Hoje três problemas aparecem juntos:
 
-| Ator | Dores Tradicionais | Valor Agregado pela IA (ClyvoScribe) |
-| :--- | :--- | :--- |
-| **Médico-Veterinário** | Digitação lenta; fadiga mental; risco de esquecimento de contraindicações de fármacos raros. | **Zero digitação durante a consulta**: o sistema escuta o diálogo naturalmente e preenche o prontuário no formato internacional **SOAP** (*Subjective, Objective, Assessment, Plan*); alertas automáticos de segurança medicamentosa. |
-| **Tutor do Pet** | Instruções orais complexas esquecidas; receita difícil de ler; ansiedade sobre como ministrar remédios. | **Guia Pós-Consulta Personalizado**: resumo didático em linguagem simples enviado via WhatsApp/App com tabela de horários, alarmes configurados e sinais de alerta do que observar no animal. |
-| **Clínica Veterinária** | Consultas demoradas gerando filas; subfaturamento de exames mencionados; perda de retornos. | **Aumento de 35% na capacidade de atendimento** (redução de 15 min por consulta); sugestão automática de faturamento de exames e agendamento proativo de retornos preventivos. |
-| **O Pet (Paciente)** | Exame físico apressado e animal estressado com veterinário focado na tela do computador. | **Atenção humanizada e 100% focada no paciente**: exame físico mais minucioso, ambiente mais calmo e adesão correta ao tratamento medicamentoso. |
+1. **Veterinário dividido entre o animal e o teclado.** O prontuário é digitado durante ou depois do atendimento. A atenção sai do paciente, e o registro fica telegráfico e incompleto, o que enfraquece o histórico do pet.
+2. **Tutor que esquece as orientações.** Dose, horário, duração e sinais de alerta são ditos em voz alta, num momento de ansiedade, e se perdem quando o tutor sai da clínica.
+3. **Riscos que dependem da memória.** Contraindicações por raça (como a mutação MDR1 das raças pastoras) ou por doença crônica (anti-inflamatório em gato com doença renal) dependem de o profissional lembrar na hora. Exames e retornos citados na conversa também deixam de ser agendados.
 
----
-
-## 3. Estratégia de Personalização, Priorização e Recomendação
-
-O diferencial da IA não é apenas transcrever palavras, mas transformá-las em inteligência contextual:
-
-### 3.1 Personalização por Perfil Biológico (Fenótipo e Raça)
-- O motor de IA correlaciona as palavras ditas na consulta com os metadados do pet cadastrado na **CLYVO VET** (espécie, raça, idade, escore corporal, sexo e peso).
-- *Exemplo*: Se o veterinário menciona tratar dor em um cão da raça **Collie**, o sistema ativa uma regra de alerta genético para a mutação no gene **MDR1/ABCB1**, prevenindo o uso de ivermectina ou ajustando a dosagem de fármacos neurotóxicos.
-- *Exemplo*: Em felinos idosos com histórico de azotemia, menções a anti-inflamatórios não esteroidais (AINEs) disparam aviso de contraindicação renal.
-
-### 3.2 Priorização de Ações Clínicas e Gravidade
-- A IA analisa os sintomas relatados na transcrição e classifica o nível de gravidade clínica em 3 faixas (*Eletiva*, *Monitoramento*, *Urgência Imediata*).
-- Se houver detecção de termos críticos como *"dispneia severa"*, *"síncope"*, *"urina com sangue abundante"* ou *"ingestão de veneno"*, o sistema prioriza requisições de exames de imagem e exames bioquímicos na fila da clínica.
-
-### 3.3 Recomendação de Serviços e Cuidado Contínuo (Wellness Journey)
-- A IA identifica oportunidades de saúde preventiva não abordadas na queixa principal:
-  - Vacinas obrigatórias (V8/V10, Antirrábica, FeLV) vencidas há mais de 30 dias.
-  - Recomendação de controle ectoparasitário sazonal (pulgas e carrapatos).
-  - Sugestão de agendamento de retorno em 7, 15 ou 30 dias baseado no tipo de patologia diagnosticada.
+O problema escolhido para a IA fica dentro da **jornada contínua de cuidado do pet**: transformar a conversa da consulta em registro estruturado, segurança clínica e orientação clara para o tutor.
 
 ---
 
-## 4. Escolha e Justificativa Técnica da Abordagem de IA
+## 2. Valor para tutor, clínica e pet
 
-Para garantir confiabilidade médica, baixa latência e conformidade regulatória, optou-se por uma **Arquitetura de Inteligência Artificial Híbrida em Três Camadas**:
+| Ator | Dor | O que a IA entrega | Status |
+|---|---|---|---|
+| **Veterinário** | Digitação, prontuário incompleto | Minuta SOAP gerada a partir da fala, para revisar e aprovar | ✅ implementado |
+| **Pet** | Remédio perigoso para a raça ou a doença | Alertas automáticos de contraindicação e gravidade | ✅ implementado |
+| **Tutor** | Esquece dose, horário e sinais de alerta | Resumo em linguagem simples, com horários e sinais de alerta | ✅ na tela · envio por WhatsApp **planejado** |
+| **Clínica** | Exames e retornos citados que não viram agenda | Sugestão de exames, retorno, vacinas e valor estimado | ✅ implementado |
+
+---
+
+## 3. Personalização, priorização e recomendação
+
+### 3.1 Personalização pelo perfil do pet
+O motor de regras cruza o que foi dito com o cadastro do animal (`app/services/decision_support.py`):
+
+| Regra | Dado do pet | Exemplo | Nível |
+|---|---|---|---|
+| Mutação MDR1 | Raça pastora (Border Collie, Collie, Pastor Australiano, Pastor de Shetland…) | Aviso para a raça; se a conversa citar ivermectina, loperamida, moxidectina ou quimioterápicos, alerta crítico | 🟡 / 🔴 |
+| Felino renal | Espécie felina + comorbidade renal (ou menção a "renal", ou urgência) | Meloxicam, cetoprofeno, carprofeno, gentamicina… citados viram contraindicação absoluta | 🔴 |
+| Braquicefálico | Raça (Buldogue Francês, Pug, Shih Tzu…) | Cuidado com contenção, estresse e temperatura | ℹ️ |
+| Vacina atrasada | Histórico vacinal com status `atrasada` | Sugere o reforço depois da cura clínica | 🟡 |
+
+Nos protocolos de demonstração, a dose também é calculada pelo **peso** (mg/kg).
+
+### 3.2 Priorização pela gravidade
+Cada consulta recebe um nível: `rotina_estavel`, `monitoramento_moderado` ou `urgencia_imediata`. O Claude classifica pelo contexto; o extrator local marca urgência quando aparecem termos como "internação", "emergência" ou "risco de vida". Urgência gera um alerta vermelho de gravidade imediata.
+
+### 3.3 Recomendação de serviços e cuidado contínuo
+`app/services/tutor_care_generator.py` transforma o plano em ações: exames citados (citologia, ultrassom, bioquímico, radiografia), internação, retorno em N dias e vacinas atrasadas viram itens sugeridos, com valor estimado. A clínica recebe também sugestões de acompanhamento (mensagem ao tutor em 48 horas, reserva do retorno, lembrete de recompra).
+
+---
+
+## 4. Abordagem de IA e justificativa
+
+Escolhemos uma **arquitetura híbrida**: IA generativa (LLM) para entender a linguagem natural da consulta, mais regras determinísticas para o que exige rigor.
 
 ```mermaid
-graph TD
-    A[Áudio da Consulta] --> B[Camada 1: ASR - Web Speech API ao vivo / Whisper para arquivos]
-    B --> C[Transcrição Médica Bruta com Diarização]
-    C --> D[Camada 2: LLM Clinical Extractor - Pydantic Structured Outputs]
-    E[Prontuário Longitudinal CLYVO VET] --> F[Contexto do Pet: Raça, Idade, Vacinas, Alergias]
-    F --> D
-    D --> G[Prontuário Estruturado SOAP]
-    G --> H[Camada 3: Motor Determinístico de Regras Clínicas & Alertas]
-    H --> I[Prontuário Validado + Alertas Médicos]
-    D --> J[Gerador de Comunicação Empática para o Tutor]
-    D --> K[Motor de Sugestão de Faturamento e Retornos da Clínica]
+flowchart TD
+    A["🎙️ Fala da consulta"] --> B["Camada 1 · ASR<br/>Web Speech API ao vivo · Whisper para arquivos"]
+    B --> C["Transcrição"]
+    C --> D{"Claude configurado?"}
+    D -->|"sim"| E["Camada 2 · Claude<br/>saída estruturada em JSON Schema"]
+    D -->|"não, ou falhou"| F["Camada 2b · Extrator local por regras"]
+    E --> G["SOAP estruturado"]
+    F --> G
+    P["Perfil do pet<br/>espécie, raça, peso, comorbidades, vacinas"] --> H
+    G --> H["Camada 3 · Regras clínicas<br/>(IA simbólica)"]
+    H --> I["Minuta SOAP + alertas"]
+    G --> J["Guia do tutor"]
+    G --> K["Sugestões da clínica"]
 ```
 
-### 4.1 Camada 1: Reconhecimento Automático de Fala (ASR - Automatic Speech Recognition)
-- **Tecnologia Escolhida**: Reconhecimento de voz do navegador (Web Speech API, `pt-BR`) para a transcrição ao vivo, com legenda em tempo real; OpenAI Whisper (modelo Transformer, rodando local) para arquivos de consultas gravadas.
-- **Justificativa Técnica**:
-  - Capacidade de lidar com vocabulário técnico médico-veterinário em português brasileiro (ex: *"ceratoconjuntivite seca"*, *"dermatofitose"*, *"cefaleia"*, *"prednisolona 5mg"*).
-  - Robustez a ruídos acústicos comuns no ambiente veterinário (latidos, miados, ruído de ar-condicionado e eco de sala de exame).
-  - Suporte à diarização (distinção entre o locutor veterinário e o locutor tutor).
+### 4.1 Camada 1: reconhecimento de fala
+- **Escolha:** Web Speech API do navegador (`pt-BR`, resultados parciais em tempo real) para a consulta ao vivo; Whisper rodando local (`openai-whisper`, opcional) para áudios gravados.
+- **Por quê:** a Web Speech API não exige instalar nada e mostra a legenda enquanto se fala, o que encaixa na teleconsulta. O Whisper roda sem enviar o áudio para fora e cobre o caso da consulta gravada.
+- **Limites:** a Web Speech API só funciona no Chrome e no Edge, em HTTPS ou `localhost`. A separação automática de locutores ainda é **planejada**; hoje os rótulos "Tutor:" e "Veterinário:" vêm do texto.
 
-### 4.2 Camada 2: Modelo de Linguagem de Grande Porte (LLM) com Structured Outputs
-- **Tecnologia Escolhida**: Claude (Anthropic, modelo `claude-opus-5-5`, SDK oficial `anthropic`) com **saída estruturada** via JSON Schema espelhando os modelos Pydantic do SOAP. Sem chave de API, um extrator local por regras resume as frases reais da consulta.
-- **Justificativa Técnica**:
-  - LLMs modernos possuem capacidade de raciocínio contextual superior para distinguir o que é queixa do tutor (*"ele vomitou duas vezes de manhã"* -> Subjetivo) do que é exame físico do veterinário (*"temperatura retal 39.2°C, linfonodos poplíteos reativos"* -> Objetivo).
-  - A técnica de **Structured Outputs** impede alucinações de formato, garantindo que o backend receba dados tipados (strings, floats para dosagens, listas de medicamentos).
+### 4.2 Camada 2: LLM com saída estruturada
+- **Escolha:** Claude, da Anthropic (`claude-opus-5-5`, SDK oficial `anthropic`), com `output_config` em **JSON Schema** espelhando o modelo `SOAPRecord` (`app/services/claude_extractor.py`).
+- **Por quê:** um LLM distingue, numa conversa solta, o que é queixa do tutor ("ele vomitou duas vezes") e o que é achado do exame ("temperatura 39,2"). A saída estruturada garante que o backend receba sempre o mesmo formato, com tipos certos (frequência em horas e duração em dias como inteiros).
+- **Controles:** o prompt proíbe inventar diagnóstico, remédio, dose, exame ou prazo; campo não falado fica vazio. Recusa (`stop_reason = refusal`) e resposta truncada (`max_tokens`) são tratadas como falha e caem no plano B.
 
-### 4.3 Camada 3: Motor de Regras Clínicas Determinístico (Symbolic AI Guardrails)
-- **Tecnologia Escolhida**: Sistema especialista determinístico em Python baseado no formulário terapêutico veterinário e diretrizes do CFMV / WSAVA.
-- **Justificativa Técnica**:
-  - **Não se deve confiar cegamente em LLMs para dosagens letais ou contraindicações estritas**. Uma IA generativa pode errar cálculos decimais de dosagem por kg.
-  - A Camada 3 atua como um *Safety Guardrail*: pega os dados estruturados pelo LLM e cruza com a tabela de pesos e contraindicações de forma estritamente matemática e determinística (100% auditável).
+### 4.3 Camada 2b: extrator local (plano B)
+- **Escolha:** classificação de cada frase por palavras-chave sem acento (`app/services/local_extractor.py`), com leitura de números falados ("duas vezes ao dia" = a cada 12h, "durante duas semanas" = 14 dias) e do nome do remédio depois do verbo ("vou prescrever…", "vou passar…").
+- **Por quê:** a consulta não pode parar por falta de internet, de chave ou por falha da API externa. E o extrator só usa frases que existem na transcrição.
+
+### 4.4 Camada 3: regras clínicas determinísticas
+- **Escolha:** motor de regras em Python (`app/services/decision_support.py`).
+- **Por quê:** não se deixa contraindicação grave a cargo de probabilidade. A mesma entrada gera sempre o mesmo alerta, e cada regra pode ser lida e auditada.
 
 ---
 
-## 5. Governança, Ética e Privacidade (LGPD)
+## 5. Dados necessários
 
-1. **Consentimento Explícito**: A gravação é iniciada apenas após clique do veterinário e termo de consentimento verbal/digital do tutor registrado na abertura da consulta.
-2. **Anonimização Imediata**: Nomes de pessoas, endereços e dados financeiros são mascarados no pipeline de pré-processamento antes de qualquer chamada a APIs de IA.
-3. **Veterinário no Controle (Human-in-the-Loop)**: O prontuário gerado pelo ClyvoScribe AI é apresentado como **minuta de revisão**. O veterinário valida, edita se necessário, e assina digitalmente com seu número de CRMV. Nenhuma prescrição é emitida sem a chancela humana.
+| Dado | Origem | Estrutura | Uso |
+|---|---|---|---|
+| Transcrição da consulta | Microfone, áudio gravado ou texto | Texto livre, com rótulos de locutor opcionais | Entrada do SOAP |
+| Perfil do pet | Cadastro da CLYVO VET | `PetHealthProfile`: espécie, raça, sexo, idade, peso, escore corporal | Regras de raça e espécie; dose por kg |
+| Histórico clínico | Prontuário | `comorbidades_cronicas`, `alergias_conhecidas`, `medicamentos_continuos` | Contraindicações |
+| Vacinas | Cartão de vacinas | `historico_vacinal`: vacina, data, status | Alerta e sugestão de reforço |
+| Consultas anteriores | Oracle (API Java) | Tabelas `consulta`, `prontuario` e `transcricao_consulta` | Histórico e rastreabilidade da IA |
+| Comportamento e rotina | Falado na consulta | Campo `comportamento_e_rotina` do SOAP | Contexto da queixa |
+
+Na integração, a API Java envia hoje a transcrição e "Nome (Raça)". O envio de comorbidades e vacinas pela integração é **planejado**; na interface de demonstração, o perfil completo vem de `samples/pet_profiles.json`.
+
+Detalhes e schemas em [`DATA_DICTIONARY.md`](DATA_DICTIONARY.md).
+
+---
+
+## 6. Governança, ética e LGPD
+
+1. **Consentimento:** o microfone só liga com o clique do veterinário, e o navegador pede permissão ao usuário.
+2. **Mínimo necessário:** para a IA vão a transcrição e nome, espécie e raça do pet. Dados do tutor (nome, CPF, telefone) não são enviados. A remoção automática de nomes ditos dentro da conversa é **planejada**.
+3. **Humano no controle:** o resultado é uma minuta. Na CLYVO VET, o texto só entra no prontuário quando o veterinário revisa e conclui o atendimento.
+4. **Rastreabilidade:** cada resumo guarda qual IA o gerou (`CLAUDE:<modelo>`, `LOCAL:extracao`, `LOCAL:protocolo-demo`, e na API Java `CLYVOSCRIBE` ou `LOCAL`).

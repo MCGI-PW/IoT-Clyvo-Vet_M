@@ -139,10 +139,10 @@ class ClinicRevenueRecommender:
 
         # Ações de fidelização
         acoes = [
-            f"Disparo automático de mensagem de check-in via WhatsApp para o tutor {pet.tutor_nome} em 48 horas.",
-            (f"Reserva automática de horário para o retorno presencial em {soap.plan.retorno_agendado_dias} dias na agenda da clínica."
+            f"Sugestão: mensagem de acompanhamento para o tutor {pet.tutor_nome} em 48 horas.",
+            (f"Sugestão: reservar o retorno presencial em {soap.plan.retorno_agendado_dias} dias na agenda da clínica."
              if soap.plan.retorno_agendado_dias else "Contato para agendar o retorno, se o(a) veterinário(a) indicar."),
-            "Lembrete inteligente de recompra de ração ou medicamento de uso contínuo."
+            "Sugestão: lembrete de recompra de ração ou de medicamento de uso contínuo."
         ]
 
         return ClinicRecommendation(
