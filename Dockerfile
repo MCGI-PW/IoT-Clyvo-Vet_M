@@ -1,17 +1,17 @@
-# ClyvoScribe AI: serviço de IA da CLYVO VET, sem root
+# AuroraScribe AI: serviço de IA da Aurora Pet, sem root
 # Roda no servidor nativo do Python (run_server.py); o SDK do Claude entra para quando houver ANTHROPIC_API_KEY
 FROM python:3.12-slim
 
 WORKDIR /app
 
 RUN pip install --no-cache-dir anthropic \
-    && useradd --create-home --uid 1001 clyvo
+    && useradd --create-home --uid 1001 aurora
 
-COPY --chown=clyvo:clyvo run_server.py ./
-COPY --chown=clyvo:clyvo app ./app
-COPY --chown=clyvo:clyvo samples ./samples
+COPY --chown=aurora:aurora run_server.py ./
+COPY --chown=aurora:aurora app ./app
+COPY --chown=aurora:aurora samples ./samples
 
-USER clyvo
+USER aurora
 ENV PYTHONUNBUFFERED=1
 EXPOSE 8000
 

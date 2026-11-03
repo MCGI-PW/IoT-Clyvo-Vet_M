@@ -1,5 +1,5 @@
 /* ==========================================================================
-   CLYVOSCRIBE AI: mesmo design system da plataforma CLYVO VET (API Java)
+   AURORASCRIBE AI: mesmo design system da plataforma Aurora Pet (API Java)
    Tema claro e escuro, gradiente aurora, Plus Jakarta Sans.
    ========================================================================== */
 
@@ -130,7 +130,7 @@ button, select, textarea, input { font-family: inherit; }
 
 @keyframes spin { to { transform: rotate(360deg); } }
 
-/* --- CABEÇALHO (igual ao da CLYVO VET) --- */
+/* --- CABEÇALHO (igual ao da Aurora Pet) --- */
 header {
   background: var(--bg-surface);
   border-bottom: 1px solid var(--border-subtle);
@@ -399,7 +399,7 @@ header {
   transition: transform 0.2s ease, box-shadow 0.25s ease, background var(--transition-fast);
 }
 
-/* Ação principal: botão aurora da CLYVO VET */
+/* Ação principal: botão aurora da Aurora Pet */
 .btn-primary {
   color: #ffffff;
   background: var(--aurora-gradient);

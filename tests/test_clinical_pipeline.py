@@ -1,8 +1,8 @@
 """
-Testes automatizados do pipeline de IA clínica da CLYVO VET (ClyvoScribe AI).
+Testes automatizados do pipeline de IA clínica da Aurora Pet (AuroraScribe AI).
 """
 import unittest
-from app.services.pipeline import clyvoscribe_pipeline
+from app.services.pipeline import aurorascribe_pipeline
 from app.models.consultation import FullConsultationResult
 
 
@@ -10,7 +10,7 @@ class TestClinicalPipeline(unittest.TestCase):
 
     def test_pipeline_thor_otite(self):
         """Valida a extração e estruturação para o caso do cão Thor (Buldogue Francês)."""
-        result = clyvoscribe_pipeline.run_consultation_pipeline(
+        result = aurorascribe_pipeline.run_consultation_pipeline(
             pet_id="PET-8921",
             sample_case_id="CASE-THOR-OTITE"
         )
@@ -35,7 +35,7 @@ class TestClinicalPipeline(unittest.TestCase):
 
     def test_pipeline_mel_renal(self):
         """Valida a extração para o caso da gata Mel (Siamês geriátrica com DRC)."""
-        result = clyvoscribe_pipeline.run_consultation_pipeline(
+        result = aurorascribe_pipeline.run_consultation_pipeline(
             pet_id="PET-4102",
             sample_case_id="CASE-MEL-RENAL"
         )
@@ -49,7 +49,7 @@ class TestClinicalPipeline(unittest.TestCase):
 
     def test_pipeline_bob_mdr1(self):
         """Valida a salvaguarda de mutação genética MDR1 para Border Collie."""
-        result = clyvoscribe_pipeline.run_consultation_pipeline(
+        result = aurorascribe_pipeline.run_consultation_pipeline(
             pet_id="PET-6734",
             sample_case_id="CASE-BOB-COLLIE"
         )

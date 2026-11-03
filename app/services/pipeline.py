@@ -1,5 +1,5 @@
 """
-Orquestrador central do pipeline de IA da CLYVO VET (ClyvoScribe AI).
+Orquestrador central do pipeline de IA da Aurora Pet (AuroraScribe AI).
 Conecta ASR -> NLP Clínico SOAP -> Apoio à Decisão -> Guia do Tutor & Recomendações da Clínica.
 """
 import time
@@ -17,7 +17,7 @@ from app.services.tutor_care_generator import tutor_care_generator, clinic_recom
 logger = logging.getLogger(__name__)
 
 
-class ClyvoScribePipeline:
+class AuroraScribePipeline:
     def __init__(self):
         self._pets_cache: Dict[str, PetHealthProfile] = {}
         self._load_pet_database()
@@ -33,7 +33,7 @@ class ClyvoScribePipeline:
     def get_pet_profile(self, pet_id: str) -> PetHealthProfile:
         if pet_id in self._pets_cache:
             return self._pets_cache[pet_id]
-        raise ValueError(f"Pet com identificador '{pet_id}' não localizado na base CLYVO VET.")
+        raise ValueError(f"Pet com identificador '{pet_id}' não localizado na base Aurora Pet.")
 
     def list_all_pets(self):
         return [p.model_dump() for p in self._pets_cache.values()]
@@ -96,7 +96,7 @@ class ClyvoScribePipeline:
 
     def summarize_transcript(self, transcript: str, contexto_paciente: Optional[str] = None) -> Dict[str, Any]:
         """
-        Resumo enxuto para integração com outros sistemas (ex.: API Java da CLYVO VET).
+        Resumo enxuto para integração com outros sistemas (ex.: API Java da Aurora Pet).
         Recebe só a transcrição e "Nome (Raça)" do pet: nenhum dado do tutor é necessário.
         """
         if not transcript or not transcript.strip():
@@ -140,4 +140,4 @@ class ClyvoScribePipeline:
         return " — ".join(partes)
 
 
-clyvoscribe_pipeline = ClyvoScribePipeline()
+aurorascribe_pipeline = AuroraScribePipeline()

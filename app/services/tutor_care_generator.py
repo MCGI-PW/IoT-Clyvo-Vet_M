@@ -77,9 +77,9 @@ class TutorCareGenerator:
             ))
 
         if soap.plan.retorno_agendado_dias:
-            proximo = f"Retorno agendado na clínica para daqui a {soap.plan.retorno_agendado_dias} dias para reavaliação. Qualquer urgência, chame a equipe da CLYVO VET!"
+            proximo = f"Retorno agendado na clínica para daqui a {soap.plan.retorno_agendado_dias} dias para reavaliação. Qualquer urgência, chame a equipe da Aurora Pet!"
         else:
-            proximo = "Siga as orientações da consulta. Qualquer urgência, chame a equipe da CLYVO VET!"
+            proximo = "Siga as orientações da consulta. Qualquer urgência, chame a equipe da Aurora Pet!"
 
         return TutorCareGuide(
             saudacao=saudacao,

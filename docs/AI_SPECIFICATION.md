@@ -1,4 +1,4 @@
-# Especificação do Componente de IA: ClyvoScribe AI (CLYVO VET)
+# Especificação do Componente de IA: AuroraScribe AI (Aurora Pet)
 
 Este documento nasceu na Sprint 3, quando definimos o problema, os dados e a abordagem de IA, e foi atualizado na Sprint 4 com o que foi implementado. Cada item mostra onde está no código. O que ainda não existe aparece como **planejado**.
 
@@ -94,7 +94,7 @@ flowchart TD
 | Dado | Origem | Estrutura | Uso |
 |---|---|---|---|
 | Transcrição da consulta | Microfone, áudio gravado ou texto | Texto livre, com rótulos de locutor opcionais | Entrada do SOAP |
-| Perfil do pet | Cadastro da CLYVO VET | `PetHealthProfile`: espécie, raça, sexo, idade, peso, escore corporal | Regras de raça e espécie; dose por kg |
+| Perfil do pet | Cadastro da Aurora Pet | `PetHealthProfile`: espécie, raça, sexo, idade, peso, escore corporal | Regras de raça e espécie; dose por kg |
 | Histórico clínico | Prontuário | `comorbidades_cronicas`, `alergias_conhecidas`, `medicamentos_continuos` | Contraindicações |
 | Vacinas | Cartão de vacinas | `historico_vacinal`: vacina, data, status | Alerta e sugestão de reforço |
 | Consultas anteriores | Oracle (API Java) | Tabelas `consulta`, `prontuario` e `transcricao_consulta` | Histórico e rastreabilidade da IA |
@@ -110,5 +110,5 @@ Detalhes e schemas em [`DATA_DICTIONARY.md`](DATA_DICTIONARY.md).
 
 1. **Consentimento:** o microfone só liga com o clique do veterinário, e o navegador pede permissão ao usuário.
 2. **Mínimo necessário:** para a IA vão a transcrição e nome, espécie e raça do pet. Dados do tutor (nome, CPF, telefone) não são enviados. A remoção automática de nomes ditos dentro da conversa é **planejada**.
-3. **Humano no controle:** o resultado é uma minuta. Na CLYVO VET, o texto só entra no prontuário quando o veterinário revisa e conclui o atendimento.
-4. **Rastreabilidade:** cada resumo guarda qual IA o gerou (`CLAUDE:<modelo>`, `LOCAL:extracao`, `LOCAL:protocolo-demo`, e na API Java `CLYVOSCRIBE` ou `LOCAL`).
+3. **Humano no controle:** o resultado é uma minuta. Na Aurora Pet, o texto só entra no prontuário quando o veterinário revisa e conclui o atendimento.
+4. **Rastreabilidade:** cada resumo guarda qual IA o gerou (`CLAUDE:<modelo>`, `LOCAL:extracao`, `LOCAL:protocolo-demo`, e na API Java `AURORASCRIBE` ou `LOCAL`).

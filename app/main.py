@@ -1,5 +1,5 @@
 """
-Servidor FastAPI e Endpoints da Solução ClyvoScribe AI (CLYVO VET).
+Servidor FastAPI e Endpoints da Solução AuroraScribe AI (Aurora Pet).
 """
 import os
 from fastapi import FastAPI, UploadFile, File, Form, HTTPException
@@ -10,14 +10,14 @@ from pydantic import BaseModel
 from typing import Optional, List
 
 from app.config import APP_TITLE, APP_VERSION, WEB_DIR
-from app.services.pipeline import clyvoscribe_pipeline
+from app.services.pipeline import aurorascribe_pipeline
 from app.services.asr_service import asr_service
 from app.models.consultation import FullConsultationResult
 
 app = FastAPI(
     title=APP_TITLE,
     version=APP_VERSION,
-    description="API de Inteligência Clínica Ambiental e Apoio à Decisão Veterinária para a plataforma CLYVO VET."
+    description="API de Inteligência Clínica Ambiental e Apoio à Decisão Veterinária para a plataforma Aurora Pet."
 )
 
 # CORS liberado para integração front-end e mobile
@@ -60,14 +60,14 @@ def health_check():
 @app.get("/api/pets")
 def list_pets():
     """Retorna a lista de pets cadastrados na clínica."""
-    return clyvoscribe_pipeline.list_all_pets()
+    return aurorascribe_pipeline.list_all_pets()
 
 
 @app.get("/api/pets/{pet_id}")
 def get_pet(pet_id: str):
     """Busca o prontuário pregresso e perfil biométrico de um pet específico."""
     try:
-        pet = clyvoscribe_pipeline.get_pet_profile(pet_id)
+        pet = aurorascribe_pipeline.get_pet_profile(pet_id)
         return pet.model_dump()
     except ValueError as e:
         raise HTTPException(status_code=404, detail=str(e))
@@ -85,7 +85,7 @@ def process_consultation(request: ConsultationRequest):
     Processa uma consulta completa a partir de um caso simulado ou transcrição personalizada.
     """
     try:
-        result = clyvoscribe_pipeline.run_consultation_pipeline(
+        result = aurorascribe_pipeline.run_consultation_pipeline(
             pet_id=request.pet_id,
             sample_case_id=request.sample_case_id,
             custom_transcript=request.custom_transcript
@@ -105,7 +105,7 @@ async def upload_audio_consultation(
     """
     try:
         content = await audio_file.read()
-        result = clyvoscribe_pipeline.run_consultation_pipeline(
+        result = aurorascribe_pipeline.run_consultation_pipeline(
             pet_id=pet_id,
             audio_filename=audio_file.filename or "consulta.wav",
             audio_bytes=content
@@ -118,11 +118,11 @@ async def upload_audio_consultation(
 @app.post("/api/transcriptions/summarize")
 def summarize_transcription(request: TranscriptionSummaryRequest):
     """
-    Resumo clínico de uma transcrição livre (integração com a API Java da CLYVO VET).
+    Resumo clínico de uma transcrição livre (integração com a API Java da Aurora Pet).
     Retorna diagnóstico, prescrição, orientações, resumo para o tutor, sinais de alerta e a fonte da IA.
     """
     try:
-        return clyvoscribe_pipeline.summarize_transcript(request.transcript, request.contexto_paciente)
+        return aurorascribe_pipeline.summarize_transcript(request.transcript, request.contexto_paciente)
     except ValueError as e:
         raise HTTPException(status_code=400, detail=str(e))
 
@@ -131,7 +131,7 @@ def summarize_transcription(request: TranscriptionSummaryRequest):
 def finalize_consultation(req: FinalizeConsultationRequest):
     """
     Aprovação da minuta na demonstração local. Não grava nada: na plataforma, quem persiste
-    o resumo (tabela TRANSCRICAO_CONSULTA, Oracle) e o prontuário é a API Java da CLYVO VET.
+    o resumo (tabela TRANSCRICAO_CONSULTA, Oracle) e o prontuário é a API Java da Aurora Pet.
     """
     return {
         "status": "sucesso",

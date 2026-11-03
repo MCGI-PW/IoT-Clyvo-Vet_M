@@ -1,5 +1,5 @@
 """
-Modelos de dados do Pet, Perfil Biométrico e Histórico Médico (CLYVO VET).
+Modelos de dados do Pet, Perfil Biométrico e Histórico Médico (Aurora Pet).
 """
 from typing import List, Optional
 from app.models.base import BaseModel, Field

@@ -1,5 +1,5 @@
 """
-Script de Inicialização Universal do ClyvoScribe AI (CLYVO VET).
+Script de Inicialização Universal do AuroraScribe AI (Aurora Pet).
 Suporta execução com Uvicorn/FastAPI (se instalado) ou através do servidor HTTP
 nativo do Python com ZERO dependências externas.
 """
@@ -16,14 +16,14 @@ BASE_DIR = Path(__file__).resolve().parent
 sys.path.insert(0, str(BASE_DIR))
 
 from app.config import APP_TITLE, APP_VERSION, WEB_DIR
-from app.services.pipeline import clyvoscribe_pipeline
+from app.services.pipeline import aurorascribe_pipeline
 from app.services.asr_service import asr_service
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s [%(levelname)s] %(message)s")
-logger = logging.getLogger("ClyvoServer")
+logger = logging.getLogger("AuroraScribeServer")
 
 
-class NativeClyvoHandler(BaseHTTPRequestHandler):
+class NativeAuroraHandler(BaseHTTPRequestHandler):
     """
     Manipulador HTTP nativo da biblioteca padrão do Python.
     Permite rodar todo o sistema e a interface web sem precisar instalar nenhum pacote externo.
@@ -44,13 +44,13 @@ class NativeClyvoHandler(BaseHTTPRequestHandler):
             return
 
         if path == "/api/pets":
-            self._send_json(clyvoscribe_pipeline.list_all_pets())
+            self._send_json(aurorascribe_pipeline.list_all_pets())
             return
 
         if path.startswith("/api/pets/"):
             pet_id = path.replace("/api/pets/", "").strip()
             try:
-                pet = clyvoscribe_pipeline.get_pet_profile(pet_id)
+                pet = aurorascribe_pipeline.get_pet_profile(pet_id)
                 self._send_json(pet.model_dump())
             except Exception as e:
                 self._send_error(404, str(e))
@@ -92,7 +92,7 @@ class NativeClyvoHandler(BaseHTTPRequestHandler):
                 sample_case_id = payload.get("sample_case_id")
                 custom_transcript = payload.get("custom_transcript")
 
-                result = clyvoscribe_pipeline.run_consultation_pipeline(
+                result = aurorascribe_pipeline.run_consultation_pipeline(
                     pet_id=pet_id,
                     sample_case_id=sample_case_id,
                     custom_transcript=custom_transcript
@@ -106,7 +106,7 @@ class NativeClyvoHandler(BaseHTTPRequestHandler):
         if path == "/api/transcriptions/summarize":
             try:
                 payload = json.loads(post_body.decode("utf-8"))
-                self._send_json(clyvoscribe_pipeline.summarize_transcript(
+                self._send_json(aurorascribe_pipeline.summarize_transcript(
                     payload.get("transcript", ""), payload.get("contexto_paciente")
                 ))
             except ValueError as e:
@@ -168,11 +168,11 @@ def run(port: int = 8000):
         logger.info(f"FastAPI indisponível ({e.__class__.__name__}): usando o servidor nativo.")
 
     logger.info("=" * 65)
-    logger.info(f"🐾 CLYVO VET — ClyvoScribe AI iniciado com sucesso!")
+    logger.info(f"🐾 Aurora Pet — AuroraScribe AI iniciado com sucesso!")
     logger.info(f"🌐 Acesse a aplicação no seu navegador: http://localhost:{port}")
     logger.info("💡 Modo de execução nativo ativado (Zero Dependências externas)")
     logger.info("=" * 65)
-    server = HTTPServer(("0.0.0.0", port), NativeClyvoHandler)
+    server = HTTPServer(("0.0.0.0", port), NativeAuroraHandler)
     try:
         server.serve_forever()
     except KeyboardInterrupt:

@@ -1,5 +1,5 @@
 """
-Modelos de dados para Consulta, Prontuário SOAP, Alertas Clínicos e Guias (CLYVO VET).
+Modelos de dados para Consulta, Prontuário SOAP, Alertas Clínicos e Guias (Aurora Pet).
 """
 from typing import List, Optional
 from app.models.base import BaseModel, Field
