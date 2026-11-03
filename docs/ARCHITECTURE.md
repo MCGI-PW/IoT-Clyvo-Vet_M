@@ -147,5 +147,5 @@ Contratos em [`DATA_DICTIONARY.md`](DATA_DICTIONARY.md).
 
 ## 7. Implantação
 
-- **Hoje:** o ClyvoScribe roda localmente (`python3 run_server.py`, porta 8000), e a API Java aponta para ele com `CLYVOSCRIBE_URL`. A versão online da CLYVO VET (Azure Container Instances) roda sem `CLYVOSCRIBE_URL`, com o assistente local do Java.
-- **Planejado:** publicar o ClyvoScribe como mais um container no mesmo grupo do Azure, com `CLYVOSCRIBE_URL=http://localhost:8000`.
+- **Local:** o ClyvoScribe roda com `python3 run_server.py` (porta 8000), e a API Java aponta para ele com `CLYVOSCRIBE_URL`.
+- **Online (Azure Container Instances):** o ClyvoScribe é um dos três containers do grupo da CLYVO VET (`app`, `clyvoscribe` e `caddy`). Ele usa a imagem `clyvoscribe:v1.1.0`, gerada pelo `Dockerfile` deste repositório, e a API Java o chama com `CLYVOSCRIBE_URL=http://localhost:8000`. Só o Caddy (HTTPS) fica exposto na internet. O script de deploy fica no repositório [DevOps-Clyvo-M_Vet](https://github.com/MCGI-PW/DevOps-Clyvo-M_Vet).

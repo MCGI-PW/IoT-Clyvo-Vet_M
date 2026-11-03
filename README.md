@@ -95,7 +95,7 @@ flowchart LR
 
 **Resiliência em duas camadas:** se o Claude falha, o ClyvoScribe usa o extrator local; se o ClyvoScribe está fora do ar, a API Java usa o assistente local dela. Em nenhum caso a consulta trava.
 
-> Na versão online da CLYVO VET (Azure), a API Java roda com o assistente local dela. A integração completa com o ClyvoScribe é demonstrada localmente, com os dois serviços rodando (veja abaixo).
+> **Online:** no Azure, o ClyvoScribe roda no mesmo grupo de containers da CLYVO VET, e a API Java o chama em `http://localhost:8000`. Ele não é exposto na internet: quem fala com o usuário é só a aplicação Java.
 
 Detalhes em [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md).
 
@@ -126,6 +126,14 @@ cd IoT-Clyvo-Vet_M
 python3 run_server.py          # abre em http://localhost:8000
 ```
 
+Abra no **Chrome ou Edge**: o microfone (Web Speech API) só funciona neles. Para mudar a porta: `python3 run_server.py 8090`.
+
+**Com Docker** (a mesma imagem que roda no Azure):
+```bash
+docker build -t clyvoscribe .
+docker run --rm -p 8000:8000 clyvoscribe
+```
+
 **Testes:**
 ```bash
 python3 -m unittest discover -s tests -p "test_*.py"
@@ -152,7 +160,7 @@ CLYVOSCRIBE_URL=http://localhost:8000 ./mvnw spring-boot:run -Dspring-boot.run.p
   -Dspring-boot.run.arguments=--server.port=8081
 ```
 
-Abra `http://localhost:8081`, entre como veterinário (`dr.carlos@veterinaria.com` / `senha123`) e use o **Assistente de IA** no atendimento do Thor. O resumo é gravado com a fonte `CLYVOSCRIBE`, e quando a raça pede (ex.: Border Collie com ivermectina), os alertas clínicos aparecem nos sinais de alerta, marcados com ⚠.
+Abra `http://localhost:8081`, entre como veterinário (`dr.carlos@veterinaria.com` / `senha123`) abra o atendimento do Thor e, no **Assistente de IA da consulta**, cole ou fale a transcrição e clique em **Gerar resumo com IA**. O resumo é gravado com a fonte `CLYVOSCRIBE`, e quando a raça pede (ex.: Border Collie com ivermectina), os alertas clínicos aparecem nos sinais de alerta, marcados com ⚠.
 
 ---
 
@@ -228,7 +236,6 @@ Python 3.9+ (servidor HTTP nativo ou FastAPI + Pydantic), Claude da Anthropic (S
 
 - Enviar o resumo do tutor por WhatsApp ou notificação no app (hoje é uma simulação na tela).
 - Mandar o perfil clínico completo (vacinas e comorbidades) da API Java para o ClyvoScribe.
-- Publicar o ClyvoScribe junto da aplicação online, no mesmo grupo de containers do Azure.
 - Separar os locutores (veterinário e tutor) automaticamente no áudio.
 
 ---
