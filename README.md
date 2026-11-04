@@ -11,7 +11,7 @@ Disciplina: **Disruptive Architectures: IoT, IoB & Generative IA**, Challenge Au
 
 | | |
 |---|---|
-| 🎥 **Vídeo pitch (YouTube, não listado)** | ⚠️ **PREENCHER com o link do vídeo** (roteiro em [`docs/PITCH_SCRIPT_5MIN.md`](docs/PITCH_SCRIPT_5MIN.md)) |
+| 🎥 **Vídeo pitch (YouTube)** | [https://youtu.be/3mCGLHQrmjg](https://youtu.be/3mCGLHQrmjg) (4 min 32 s) |
 | ☕ **Aplicação Aurora Pet (API Java)** | [MCGI-PW/API-Clyvo-M_Vet](https://github.com/MCGI-PW/API-Clyvo-M_Vet) · [online](https://clyvovet-app-16666.brazilsouth.azurecontainer.io/) |
 | 📄 **Documentação técnica** | [Especificação da IA](docs/AI_SPECIFICATION.md) · [Arquitetura](docs/ARCHITECTURE.md) · [Dicionário de dados](docs/DATA_DICTIONARY.md) |
 
