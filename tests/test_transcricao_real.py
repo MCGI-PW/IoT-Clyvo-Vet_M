@@ -9,7 +9,7 @@ from app.models.pet import PetHealthProfile
 from app.services.clinical_nlp import ClinicalNLPService
 from app.services.claude_extractor import ClaudeSoapExtractor
 from app.services.local_extractor import extrair_soap, frequencia_em_horas, duracao_em_dias
-from app.services.pipeline import clyvoscribe_pipeline
+from app.services.pipeline import aurorascribe_pipeline
 
 CONSULTA_LIVRE = (
     "Tutor: A Luna está com diarreia há dois dias e não quer comer. "
@@ -91,7 +91,7 @@ class TestExtratorLocal(unittest.TestCase):
         self.assertEqual((rx[0].frequencia_horas, rx[0].duracao_dias), (24, 5))
 
     def test_sem_retorno_falado_nao_inventa_prazo(self):
-        result = clyvoscribe_pipeline.run_consultation_pipeline(
+        result = aurorascribe_pipeline.run_consultation_pipeline(
             pet_id="PET-8921", custom_transcript="Suspeita de alergia. Evite petiscos."
         )
         self.assertIsNone(result.soap.plan.retorno_agendado_dias)
@@ -125,7 +125,7 @@ class TestClaude(unittest.TestCase):
 class TestResumoParaIntegracao(unittest.TestCase):
 
     def test_resumo_no_formato_da_api_java(self):
-        resumo = clyvoscribe_pipeline.summarize_transcript(CONSULTA_LIVRE, "Luna (Siamês)")
+        resumo = aurorascribe_pipeline.summarize_transcript(CONSULTA_LIVRE, "Luna (Siamês)")
 
         self.assertEqual(set(resumo), {"diagnostico", "prescricao", "orientacoes", "resumo_tutor",
                                        "sinais_alerta", "alertas_clinicos", "fonte"})
@@ -135,7 +135,7 @@ class TestResumoParaIntegracao(unittest.TestCase):
 
     def test_transcricao_vazia_e_rejeitada(self):
         with self.assertRaises(ValueError):
-            clyvoscribe_pipeline.summarize_transcript("   ")
+            aurorascribe_pipeline.summarize_transcript("   ")
 
 
 if __name__ == "__main__":

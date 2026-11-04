@@ -1,18 +1,18 @@
-# Arquitetura: ClyvoScribe AI na plataforma CLYVO VET
+# Arquitetura: AuroraScribe AI na plataforma Aurora Pet
 
 ## 1. Visão geral
 
-O ClyvoScribe é um **serviço de IA em Python**, separado da aplicação principal. A CLYVO VET (API Java com Spring Boot, telas em Thymeleaf e banco Oracle) atende tutores, veterinários e clínicas, e chama o ClyvoScribe por **HTTP/JSON** quando o veterinário pede o resumo da consulta.
+O AuroraScribe é um **serviço de IA em Python**, separado da aplicação principal. A Aurora Pet (API Java com Spring Boot, telas em Thymeleaf e banco Oracle) atende tutores, veterinários e clínicas, e chama o AuroraScribe por **HTTP/JSON** quando o veterinário pede o resumo da consulta.
 
 | Componente | Responsabilidade | Tecnologia | Repositório |
 |---|---|---|---|
 | Painel do veterinário | Teleconsulta, microfone e revisão do resumo | Thymeleaf + JavaScript (Web Speech API) | API-Clyvo-M_Vet |
 | API Java (`TranscricaoService`) | Permissão, chamada à IA, gravação no banco, fallback | Java 21, Spring Boot | API-Clyvo-M_Vet |
 | Banco | Consultas, prontuários e sugestões da IA | Oracle, migrations Flyway (V1 a V7) | API-Clyvo-M_Vet |
-| **ClyvoScribe AI** | Transcrição de arquivos, SOAP, regras clínicas, guia do tutor | Python 3.9+ (servidor nativo ou FastAPI) | **este repositório** |
+| **AuroraScribe AI** | Transcrição de arquivos, SOAP, regras clínicas, guia do tutor | Python 3.9+ (servidor nativo ou FastAPI) | **este repositório** |
 | IA generativa | Extração SOAP com saída estruturada | Claude (Anthropic) | API externa |
 
-Dentro do ClyvoScribe, as camadas ficam separadas:
+Dentro do AuroraScribe, as camadas ficam separadas:
 
 | Camada | Arquivos |
 |---|---|
@@ -31,10 +31,10 @@ flowchart TB
     subgraph Navegador["Navegador do veterinário"]
         UI["Painel da teleconsulta<br/>(Thymeleaf)"]
         WSA["Web Speech API<br/>pt-BR, legenda ao vivo"]
-        DEMO["Interface de demonstração<br/>do ClyvoScribe (app/web)"]
+        DEMO["Interface de demonstração<br/>do AuroraScribe (app/web)"]
     end
 
-    subgraph Java["API Java CLYVO VET (Spring Boot)"]
+    subgraph Java["API Java Aurora Pet (Spring Boot)"]
         CTRL["POST /web/vet/consultas/{id}/ia/resumo<br/>POST /api/appointments/{id}/ai-summary"]
         SVC["TranscricaoService<br/>permissão + fallback"]
         JLOCAL["AssistenteClinicoLocal<br/>(fallback do Java)"]
@@ -42,7 +42,7 @@ flowchart TB
 
     DB[("Oracle<br/>consulta · prontuario<br/>transcricao_consulta")]
 
-    subgraph Scribe["ClyvoScribe AI (Python)"]
+    subgraph Scribe["AuroraScribe AI (Python)"]
         API["POST /api/transcriptions/summarize<br/>POST /api/consultations/process"]
         PIPE["pipeline.py"]
         NLP["clinical_nlp.py"]
@@ -58,7 +58,7 @@ flowchart TB
     WSA --> UI
     UI --> CTRL --> SVC
     SVC -->|"HTTP JSON"| API
-    SVC -.->|"ClyvoScribe fora do ar"| JLOCAL
+    SVC -.->|"AuroraScribe fora do ar"| JLOCAL
     SVC --> DB
     DEMO --> API
     API --> PIPE --> NLP
@@ -77,10 +77,10 @@ flowchart TB
 sequenceDiagram
     autonumber
     actor V as Veterinário
-    participant UI as Painel CLYVO VET
+    participant UI as Painel Aurora Pet
     participant J as API Java
     participant DB as Oracle
-    participant S as ClyvoScribe
+    participant S as AuroraScribe
     participant C as Claude
 
     V->>UI: Liga o microfone na teleconsulta
@@ -104,11 +104,11 @@ sequenceDiagram
     J->>DB: INSERT prontuario · consulta = CONCLUIDA
 ```
 
-Se o ClyvoScribe não responder (timeout de 90 s, erro HTTP ou rede), a API Java usa o `AssistenteClinicoLocal` e grava a fonte `LOCAL`.
+Se o AuroraScribe não responder (timeout de 90 s, erro HTTP ou rede), a API Java usa o `AssistenteClinicoLocal` e grava a fonte `LOCAL`.
 
 ---
 
-## 4. Endpoints do ClyvoScribe
+## 4. Endpoints do AuroraScribe
 
 | Método e rota | Uso | Servidor nativo | FastAPI |
 |---|---|:---:|:---:|
@@ -128,9 +128,9 @@ Contratos em [`DATA_DICTIONARY.md`](DATA_DICTIONARY.md).
 
 | Falha | O que acontece |
 |---|---|
-| Sem `ANTHROPIC_API_KEY` ou sem o pacote `anthropic` | O ClyvoScribe usa o extrator local; `fonte = LOCAL:extracao` |
+| Sem `ANTHROPIC_API_KEY` ou sem o pacote `anthropic` | O AuroraScribe usa o extrator local; `fonte = LOCAL:extracao` |
 | Claude falha, recusa ou trunca a resposta | Log de aviso e extrator local |
-| ClyvoScribe fora do ar ou lento | A API Java usa o assistente local dela; `fonte_ia = LOCAL` |
+| AuroraScribe fora do ar ou lento | A API Java usa o assistente local dela; `fonte_ia = LOCAL` |
 | Navegador sem Web Speech API, ou fora de HTTPS | A interface avisa, e o veterinário cola a transcrição |
 | Whisper não instalado | `upload-audio` responde com a instrução de instalação |
 
@@ -140,12 +140,12 @@ Contratos em [`DATA_DICTIONARY.md`](DATA_DICTIONARY.md).
 
 - **Dados mínimos para a IA:** transcrição, nome, espécie e raça do pet. O contexto montado pela API Java (`contextoDoPaciente`) não inclui dados do tutor.
 - **Autorização:** só o veterinário ou a clínica responsáveis pela consulta geram ou leem o resumo (checado na API Java).
-- **Transporte:** a aplicação online da CLYVO VET usa HTTPS (certificado Let's Encrypt). A chave do Claude fica em variável de ambiente, nunca no código.
+- **Transporte:** a aplicação online da Aurora Pet usa HTTPS (certificado Let's Encrypt). A chave do Claude fica em variável de ambiente, nunca no código.
 - **Humano no controle:** a sugestão fica em `transcricao_consulta`; o `prontuario` só é criado quando o veterinário conclui o atendimento.
 
 ---
 
 ## 7. Implantação
 
-- **Local:** o ClyvoScribe roda com `python3 run_server.py` (porta 8000), e a API Java aponta para ele com `CLYVOSCRIBE_URL`.
-- **Online (Azure Container Instances):** o ClyvoScribe é um dos três containers do grupo da CLYVO VET (`app`, `clyvoscribe` e `caddy`). Ele usa a imagem `clyvoscribe:v1.1.0`, gerada pelo `Dockerfile` deste repositório, e a API Java o chama com `CLYVOSCRIBE_URL=http://localhost:8000`. Só o Caddy (HTTPS) fica exposto na internet. O script de deploy fica no repositório [DevOps-Clyvo-M_Vet](https://github.com/MCGI-PW/DevOps-Clyvo-M_Vet).
+- **Local:** o AuroraScribe roda com `python3 run_server.py` (porta 8000), e a API Java aponta para ele com `AURORASCRIBE_URL`.
+- **Online (Azure Container Instances):** o AuroraScribe é um dos três containers do grupo da Aurora Pet (`app`, `clyvoscribe` e `caddy`). Ele usa a imagem `clyvoscribe:v1.1.0`, gerada pelo `Dockerfile` deste repositório, e a API Java o chama com `AURORASCRIBE_URL=http://localhost:8000`. Só o Caddy (HTTPS) fica exposto na internet. O script de deploy fica no repositório [DevOps-Clyvo-M_Vet](https://github.com/MCGI-PW/DevOps-Clyvo-M_Vet).

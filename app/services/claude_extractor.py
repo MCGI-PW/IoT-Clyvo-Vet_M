@@ -12,7 +12,7 @@ from app.models.pet import PetHealthProfile
 
 logger = logging.getLogger(__name__)
 
-PROMPT_SISTEMA = """Você é um assistente de documentação clínica veterinária da CLYVO VET.
+PROMPT_SISTEMA = """Você é um assistente de documentação clínica veterinária da Aurora Pet.
 Recebe a transcrição de uma consulta entre veterinário e tutor e organiza o prontuário no padrão SOAP.
 
 Regras obrigatórias:

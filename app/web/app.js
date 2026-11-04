@@ -1,6 +1,6 @@
-// CLYVO VET — ClyvoScribe AI Client Logic
+// Aurora Pet — AuroraScribe AI Client Logic
 
-// Tema claro/escuro, igual ao da plataforma CLYVO VET
+// Tema claro/escuro, igual ao da plataforma Aurora Pet
 function getStoredTheme() {
   try {
     const saved = localStorage.getItem("clyvo_theme");
@@ -115,7 +115,7 @@ function initControls() {
 
   const btnSign = document.getElementById("btnSignSoap");
   btnSign.addEventListener("click", () => {
-    alert("✅ Minuta revisada e aprovada pelo(a) veterinário(a).\n\nNesta demonstração, nada é gravado. Na plataforma CLYVO VET, o resumo é salvo no Oracle pela API Java e só entra no prontuário quando o veterinário finaliza o atendimento.");
+    alert("✅ Minuta revisada e aprovada pelo(a) veterinário(a).\n\nNesta demonstração, nada é gravado. Na plataforma Aurora Pet, o resumo é salvo no Oracle pela API Java e só entra no prontuário quando o veterinário finaliza o atendimento.");
   });
 }
 

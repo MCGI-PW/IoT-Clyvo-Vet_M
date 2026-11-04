@@ -6,7 +6,7 @@ set -euo pipefail
 
 PROJECT_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 PASTA="$(basename "$PROJECT_ROOT")"
-ZIP_NAME="CLYVO_VET_ENTREGA_IA.zip"
+ZIP_NAME="AURORA_PET_ENTREGA_IA.zip"
 OUTPUT_PATH="$PROJECT_ROOT/$ZIP_NAME"
 REPO_URL="https://github.com/MCGI-PW/IoT-Clyvo-Vet_M"
 VIDEO_URL="${1:-}"
@@ -25,7 +25,7 @@ git archive --format=zip --prefix="$PASTA/" -o "$OUTPUT_PATH" HEAD
 TMP_DIR="$(mktemp -d)"
 trap 'rm -rf "$TMP_DIR"' EXIT
 cat > "$TMP_DIR/ENTREGA.txt" <<TXT
-CLYVO VET - ClyvoScribe AI
+Aurora Pet - AuroraScribe AI
 Disruptive Architectures: IoT, IoB & Generative IA - Sprint 4
 
 Vídeo (YouTube, não listado): $VIDEO_URL

@@ -1,4 +1,4 @@
-# Dicionário de Dados: ClyvoScribe AI (CLYVO VET)
+# Dicionário de Dados: AuroraScribe AI (Aurora Pet)
 
 Os schemas abaixo são os que o código usa: modelos em `app/models/` e contrato da integração em `app/services/pipeline.py`.
 
@@ -9,7 +9,7 @@ Os schemas abaixo são os que o código usa: modelos em `app/models/` e contrato
 1. **Captura:** a fala vira texto no navegador (Web Speech API), o áudio gravado vira texto no Whisper, ou o texto é colado.
 2. **Enriquecimento:** a transcrição é combinada com o perfil do pet (espécie, raça, peso, comorbidades, vacinas).
 3. **Inferência e validação:** o Claude (ou o extrator local) gera o SOAP, e as regras clínicas acrescentam os alertas.
-4. **Armazenamento:** o ClyvoScribe **não guarda nada**: processa e devolve. Quem grava é a API Java, no Oracle:
+4. **Armazenamento:** o AuroraScribe **não guarda nada**: processa e devolve. Quem grava é a API Java, no Oracle:
    - a sugestão da IA, na tabela `transcricao_consulta`;
    - o prontuário, na tabela `prontuario`, só quando o veterinário conclui o atendimento.
 
@@ -22,7 +22,7 @@ O áudio não é armazenado: a Web Speech API entrega só o texto, e o arquivo e
 | Entidade | Origem | Formato | Uso pela IA |
 |---|---|---|---|
 | Transcrição | Microfone, arquivo de áudio ou texto | Texto livre | Entrada do SOAP |
-| Perfil do pet (`PetHealthProfile`) | Cadastro da CLYVO VET (na demonstração, `samples/pet_profiles.json`) | JSON | Regras de raça e espécie, dose por kg |
+| Perfil do pet (`PetHealthProfile`) | Cadastro da Aurora Pet (na demonstração, `samples/pet_profiles.json`) | JSON | Regras de raça e espécie, dose por kg |
 | Comorbidades e alergias | Prontuário do pet | Lista de textos | Contraindicações (ex.: felino renal) |
 | Histórico vacinal | Cartão de vacinas | Lista de `{vacina, data_aplicacao, status}` | Alerta de vacina atrasada e sugestão de reforço |
 | Prontuário SOAP (`SOAPRecord`) | Saída da IA | JSON | Minuta para o veterinário revisar |
@@ -85,7 +85,7 @@ O áudio não é armazenado: a Web Speech API entrega só o texto, e o arquivo e
 | `orientacoes_sugeridas` | VARCHAR2(4000) | `orientacoes` |
 | `resumo_tutor` | VARCHAR2(4000) | `resumo_tutor` |
 | `sinais_alerta` | VARCHAR2(4000) | `sinais_alerta` + `alertas_clinicos`, um por linha |
-| `fonte_ia` | VARCHAR2(30) | `CLYVOSCRIBE`, `CLAUDE:<modelo>` ou `LOCAL` |
+| `fonte_ia` | VARCHAR2(30) | `AURORASCRIBE`, `CLAUDE:<modelo>` ou `LOCAL` |
 | `data_geracao` | TIMESTAMP | Quando a sugestão foi gerada |
 
 ---

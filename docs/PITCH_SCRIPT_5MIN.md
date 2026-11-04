@@ -1,14 +1,14 @@
-# Roteiro do Vídeo Pitch (5 minutos): ClyvoScribe AI
+# Roteiro do Vídeo Pitch (5 minutos): AuroraScribe AI
 
 > **Formato:** YouTube, visibilidade **Não listado**. Duração entre 4:45 e 5:15.
 > **Cena:** câmera do apresentador na abertura e no fechamento; no meio, gravação de tela.
-> **Antes de gravar:** suba os dois serviços como no README ("Integrado com a CLYVO VET"), use o **Chrome** e deixe o microfone permitido em `localhost`. Os dados de demonstração da CLYVO VET já trazem um atendimento agendado do Thor (Golden Retriever) com o Dr. Carlos.
+> **Antes de gravar:** suba os dois serviços como no README ("Integrado com a Aurora Pet"), use o **Chrome** e deixe o microfone permitido em `localhost`. Os dados de demonstração da Aurora Pet já trazem um atendimento agendado do Thor (Golden Retriever) com o Dr. Carlos.
 
 | Tempo | Bloco | Tela |
 |---|---|---|
 | 0:00–0:40 | 1. Problema | Câmera |
-| 0:40–1:40 | 2. Demonstração: ClyvoScribe | `http://localhost:8000` |
-| 1:40–3:00 | 3. Demonstração: integrado à CLYVO VET | `http://localhost:8081` (painel do veterinário) |
+| 0:40–1:40 | 2. Demonstração: AuroraScribe | `http://localhost:8000` |
+| 1:40–3:00 | 3. Demonstração: integrado à Aurora Pet | `http://localhost:8081` (painel do veterinário) |
 | 3:00–4:10 | 4. Como a IA funciona | Diagrama do README |
 | 4:10–5:00 | 5. Resultados, valor e fechamento | Tabela de resultados do README + câmera |
 
@@ -18,12 +18,12 @@
 **[Câmera]**
 
 > *"Numa consulta veterinária, o profissional divide a atenção entre o animal e o teclado. O prontuário sai às pressas e incompleto. O tutor vai embora sem lembrar a dose nem o horário do remédio. E um risco sério, como um medicamento perigoso para a raça do cão, depende só da memória de quem está atendendo.*
-> *Para a CLYVO VET, criamos o **ClyvoScribe AI**: a IA ouve a consulta, escreve o prontuário, confere a segurança da prescrição e explica tudo para o tutor. E o veterinário continua no controle."*
+> *Para a Aurora Pet, criamos o **AuroraScribe AI**: a IA ouve a consulta, escreve o prontuário, confere a segurança da prescrição e explica tudo para o tutor. E o veterinário continua no controle."*
 
-### Bloco 2: o ClyvoScribe em ação (0:40–1:40)
-**[Tela: interface do ClyvoScribe]**
+### Bloco 2: o AuroraScribe em ação (0:40–1:40)
+**[Tela: interface do AuroraScribe]**
 
-> *"Este é o ClyvoScribe. Vou escolher o Bob, um Border Collie, e carregar a consulta dele."*
+> *"Este é o AuroraScribe. Vou escolher o Bob, um Border Collie, e carregar a consulta dele."*
 
 - Selecionar **Bob** e carregar o caso de exemplo. Processar.
 - Mostrar a aba **Prontuário SOAP**: queixa, exame, diagnóstico e prescrição com dose, intervalo e duração. Apontar a etiqueta da **fonte da IA**.
@@ -33,8 +33,8 @@
 
 - Mostrar rapidamente a **Visão do Tutor** (horários e sinais de alerta) e a **Gestão da Clínica** (raio-x e retorno sugeridos).
 
-### Bloco 3: integrado à CLYVO VET (1:40–3:00)
-**[Tela: painel do veterinário na CLYVO VET]**
+### Bloco 3: integrado à Aurora Pet (1:40–3:00)
+**[Tela: painel do veterinário na Aurora Pet]**
 
 > *"Agora, dentro da plataforma. Estou logado como o Dr. Carlos, no atendimento do Thor."*
 
@@ -48,7 +48,7 @@ Mantenha a orelha seca. Se ele tiver febre ou parar de comer, volte antes.
 Retorno em 10 dias.
 ```
 
-> *"O texto aparece enquanto eu falo. Quando eu peço o resumo, a API Java manda a transcrição, só com o nome e a raça do pet, para o ClyvoScribe."*
+> *"O texto aparece enquanto eu falo. Quando eu peço o resumo, a API Java manda a transcrição, só com o nome e a raça do pet, para o AuroraScribe."*
 
 - Clicar em **⏹ Parar transcrição** e depois em **✨ Gerar resumo com IA**. Mostrar diagnóstico, prescrição, orientações, resumo para o tutor e sinais de alerta preenchidos.
 
@@ -63,7 +63,7 @@ Retorno em 10 dias.
 > *Na primeira, o reconhecimento de fala do navegador transcreve a consulta em português, ao vivo. Áudios gravados podem passar pelo Whisper.*
 > *Na segunda, o Claude, da Anthropic, organiza a conversa no padrão SOAP, com saída estruturada: a resposta sempre chega no mesmo formato, e o prompt proíbe inventar remédio, dose ou prazo. Sem internet ou sem chave, um extrator local por regras assume e usa só as frases que foram ditas.*
 > *Na terceira, regras clínicas determinísticas cruzam a prescrição com a espécie, a raça, as doenças crônicas e as vacinas do pet. Contraindicação grave não fica a cargo de probabilidade.*
-> *E se o ClyvoScribe cair, a API Java usa o assistente local dela: a consulta nunca trava. Cada resumo guarda qual IA o gerou."*
+> *E se o AuroraScribe cair, a API Java usa o assistente local dela: a consulta nunca trava. Cada resumo guarda qual IA o gerou."*
 
 ### Bloco 5: resultados e fechamento (4:10–5:00)
 **[Tela: seção "Resultados parciais" do README, depois câmera]**

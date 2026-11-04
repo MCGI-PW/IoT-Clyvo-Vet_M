@@ -1,18 +1,18 @@
-# 🐾 CLYVO VET: ClyvoScribe AI
+# 🐾 Aurora Pet: AuroraScribe AI
 
-> **Transcrição inteligente da consulta veterinária.** O ClyvoScribe ouve a consulta, organiza o prontuário no padrão SOAP com IA generativa, confere a prescrição com regras de segurança clínica e escreve um resumo simples para o tutor. O veterinário revisa e aprova: a IA sugere, quem decide é ele.
+> **Transcrição inteligente da consulta veterinária.** O AuroraScribe ouve a consulta, organiza o prontuário no padrão SOAP com IA generativa, confere a prescrição com regras de segurança clínica e escreve um resumo simples para o tutor. O veterinário revisa e aprova: a IA sugere, quem decide é ele.
 
 [![Testes](https://img.shields.io/badge/Testes-14%20passando-brightgreen.svg)](#-resultados-parciais)
 [![Python](https://img.shields.io/badge/Python-3.9%2B-blue.svg)](#%EF%B8%8F-tecnologias)
 [![IA](https://img.shields.io/badge/IA-Claude%20%2B%20regras%20cl%C3%ADnicas-orange.svg)](#-abordagem-de-ia)
 [![Padrão](https://img.shields.io/badge/Prontu%C3%A1rio-SOAP-purple.svg)](docs/DATA_DICTIONARY.md)
 
-Disciplina: **Disruptive Architectures: IoT, IoB & Generative IA**, Challenge CLYVO VET (2TDS, 2º semestre de 2026).
+Disciplina: **Disruptive Architectures: IoT, IoB & Generative IA**, Challenge Aurora Pet (2TDS, 2º semestre de 2026).
 
 | | |
 |---|---|
 | 🎥 **Vídeo pitch (YouTube, não listado)** | ⚠️ **PREENCHER com o link do vídeo** (roteiro em [`docs/PITCH_SCRIPT_5MIN.md`](docs/PITCH_SCRIPT_5MIN.md)) |
-| ☕ **Aplicação CLYVO VET (API Java)** | [MCGI-PW/API-Clyvo-M_Vet](https://github.com/MCGI-PW/API-Clyvo-M_Vet) · [online](https://clyvovet-app-16666.brazilsouth.azurecontainer.io/) |
+| ☕ **Aplicação Aurora Pet (API Java)** | [MCGI-PW/API-Clyvo-M_Vet](https://github.com/MCGI-PW/API-Clyvo-M_Vet) · [online](https://clyvovet-app-16666.brazilsouth.azurecontainer.io/) |
 | 📄 **Documentação técnica** | [Especificação da IA](docs/AI_SPECIFICATION.md) · [Arquitetura](docs/ARCHITECTURE.md) · [Dicionário de dados](docs/DATA_DICTIONARY.md) |
 
 ## 👥 Integrantes
@@ -32,7 +32,7 @@ Na consulta veterinária, o profissional divide a atenção entre o animal e o t
 
 ## 💡 Solução e valor
 
-| Para quem | O que o ClyvoScribe entrega |
+| Para quem | O que o AuroraScribe entrega |
 |---|---|
 | **Veterinário** | Fala a consulta normalmente e recebe a **minuta do prontuário SOAP** pronta para revisar (queixa, exame, diagnóstico, prescrição com dose, frequência e duração, exames, orientações e retorno). |
 | **Pet** | **Alertas de segurança** cruzando a prescrição com o perfil do animal: raças pastoras com mutação MDR1 (ivermectina, loperamida), felinos renais com anti-inflamatório, braquicefálicos, vacinas atrasadas e casos de urgência. |
@@ -57,16 +57,16 @@ Arquitetura **híbrida em três camadas**: a IA generativa entende a conversa, e
 
 ---
 
-## 🏛️ Arquitetura e integração com a CLYVO VET
+## 🏛️ Arquitetura e integração com a Aurora Pet
 
-O ClyvoScribe é o **serviço de IA** da plataforma. Quem atende o usuário final é a aplicação Java (Spring Boot), que salva o resultado no **Oracle**.
+O AuroraScribe é o **serviço de IA** da plataforma. Quem atende o usuário final é a aplicação Java (Spring Boot), que salva o resultado no **Oracle**.
 
 ```mermaid
 flowchart LR
     VET["👩‍⚕️ Veterinário<br/>painel da teleconsulta<br/>(Thymeleaf)"]
     MIC["🎙️ Web Speech API<br/>transcrição ao vivo"]
-    JAVA["☕ API Java CLYVO VET<br/>TranscricaoService"]
-    SCRIBE["🐍 ClyvoScribe AI<br/>POST /api/transcriptions/summarize"]
+    JAVA["☕ API Java Aurora Pet<br/>TranscricaoService"]
+    SCRIBE["🐍 AuroraScribe AI<br/>POST /api/transcriptions/summarize"]
     CLAUDE["🤖 Claude<br/>saída estruturada"]
     LOCAL["📏 Extrator local<br/>(plano B)"]
     RULES["🛡️ Regras clínicas<br/>MDR1 · renal · raça"]
@@ -87,15 +87,15 @@ flowchart LR
     DB --> TUTOR
 ```
 
-1. Na teleconsulta, o veterinário liga o microfone no painel da CLYVO VET e fala a consulta (ou cola a transcrição).
-2. A API Java envia a transcrição e só **nome e raça do pet** para o ClyvoScribe (`CLYVOSCRIBE_URL`).
-3. O ClyvoScribe gera o SOAP (Claude ou plano B), aplica as regras clínicas e devolve o resumo.
+1. Na teleconsulta, o veterinário liga o microfone no painel da Aurora Pet e fala a consulta (ou cola a transcrição).
+2. A API Java envia a transcrição e só **nome e raça do pet** para o AuroraScribe (`AURORASCRIBE_URL`).
+3. O AuroraScribe gera o SOAP (Claude ou plano B), aplica as regras clínicas e devolve o resumo.
 4. A API Java grava a sugestão na tabela `TRANSCRICAO_CONSULTA` (migration Flyway `V7`) e pré-preenche diagnóstico, prescrição e orientações.
 5. O veterinário revisa, corrige se preciso e conclui o atendimento: só então o texto vira prontuário, que o tutor vê no painel dele.
 
-**Resiliência em duas camadas:** se o Claude falha, o ClyvoScribe usa o extrator local; se o ClyvoScribe está fora do ar, a API Java usa o assistente local dela. Em nenhum caso a consulta trava.
+**Resiliência em duas camadas:** se o Claude falha, o AuroraScribe usa o extrator local; se o AuroraScribe está fora do ar, a API Java usa o assistente local dela. Em nenhum caso a consulta trava.
 
-> **Online:** no Azure, o ClyvoScribe roda no mesmo grupo de containers da CLYVO VET, e a API Java o chama em `http://localhost:8000`. Ele não é exposto na internet: quem fala com o usuário é só a aplicação Java.
+> **Online:** no Azure, o AuroraScribe roda no mesmo grupo de containers da Aurora Pet, e a API Java o chama em `http://localhost:8000`. Ele não é exposto na internet: quem fala com o usuário é só a aplicação Java.
 
 Detalhes em [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md).
 
@@ -130,8 +130,8 @@ Abra no **Chrome ou Edge**: o microfone (Web Speech API) só funciona neles. Par
 
 **Com Docker** (a mesma imagem que roda no Azure):
 ```bash
-docker build -t clyvoscribe .
-docker run --rm -p 8000:8000 clyvoscribe
+docker build -t aurorascribe .
+docker run --rm -p 8000:8000 aurorascribe
 ```
 
 **Testes:**
@@ -150,17 +150,17 @@ python3 run_server.py
 
 **Com FastAPI** (opcional, gera a documentação Swagger em `/docs`): `pip install -r requirements.txt` e `uvicorn app.main:app --reload`.
 
-### Integrado com a CLYVO VET
+### Integrado com a Aurora Pet
 
-Com o ClyvoScribe rodando na porta 8000, suba a API Java apontando para ele:
+Com o AuroraScribe rodando na porta 8000, suba a API Java apontando para ele:
 
 ```bash
 cd ../API-Clyvo-M_Vet
-CLYVOSCRIBE_URL=http://localhost:8000 ./mvnw spring-boot:run -Dspring-boot.run.profiles=local \
+AURORASCRIBE_URL=http://localhost:8000 ./mvnw spring-boot:run -Dspring-boot.run.profiles=local \
   -Dspring-boot.run.arguments=--server.port=8081
 ```
 
-Abra `http://localhost:8081`, entre como veterinário (`dr.carlos@veterinaria.com` / `senha123`) abra o atendimento do Thor e, no **Assistente de IA da consulta**, cole ou fale a transcrição e clique em **Gerar resumo com IA**. O resumo é gravado com a fonte `CLYVOSCRIBE`, e quando a raça pede (ex.: Border Collie com ivermectina), os alertas clínicos aparecem nos sinais de alerta, marcados com ⚠.
+Abra `http://localhost:8081`, entre como veterinário (`dr.carlos@veterinaria.com` / `senha123`) abra o atendimento do Thor e, no **Assistente de IA da consulta**, cole ou fale a transcrição e clique em **Gerar resumo com IA**. O resumo é gravado com a fonte `AURORASCRIBE`, e quando a raça pede (ex.: Border Collie com ivermectina), os alertas clínicos aparecem nos sinais de alerta, marcados com ⚠.
 
 ---
 
@@ -200,11 +200,11 @@ Retorno em 10 dias.
 
 **Evidências das telas:**
 
-| ClyvoScribe: alertas do Bob (Border Collie) | CLYVO VET: resumo gerado pelo ClyvoScribe (`IA: CLYVOSCRIBE`) |
+| AuroraScribe: alertas do Bob (Border Collie) | Aurora Pet: resumo gerado pelo AuroraScribe (`IA: AURORASCRIBE`) |
 |---|---|
-| ![Alertas MDR1 no caso do Bob](docs/evidencias/01-clyvoscribe-alertas-bob.jpg) | ![Painel do veterinário com o resumo do ClyvoScribe](docs/evidencias/02-clyvo-vet-integrado.jpg) |
+| ![Alertas MDR1 no caso do Bob](docs/evidencias/01-aurorascribe-alertas-bob.jpg) | ![Painel do veterinário com o resumo do AuroraScribe](docs/evidencias/02-aurora-pet-integrado.jpg) |
 
-Na segunda tela, a API Java chamou `POST /api/transcriptions/summarize` (HTTP 200 no log do ClyvoScribe), gravou a sugestão no banco e pré-preencheu diagnóstico, prescrição e orientações para o veterinário revisar.
+Na segunda tela, a API Java chamou `POST /api/transcriptions/summarize` (HTTP 200 no log do AuroraScribe), gravou a sugestão no banco e pré-preencheu diagnóstico, prescrição e orientações para o veterinário revisar.
 
 **O que os testes garantem** (14 testes, `tests/`):
 - o pipeline completo dos três casos gera os alertas esperados (MDR1, renal, vacina);
@@ -228,14 +228,14 @@ Python 3.9+ (servidor HTTP nativo ou FastAPI + Pydantic), Claude da Anthropic (S
 ## 🔒 LGPD e governança
 
 - **Mínimo necessário:** para a IA vão só a transcrição, o nome, a espécie e a raça do pet. Nome, CPF e telefone do tutor ficam de fora.
-- **Veterinário no controle:** o resultado é uma minuta. Na CLYVO VET, só vira prontuário quando o veterinário revisa e conclui o atendimento.
+- **Veterinário no controle:** o resultado é uma minuta. Na Aurora Pet, só vira prontuário quando o veterinário revisa e conclui o atendimento.
 - **Rastreabilidade:** cada resumo guarda a fonte da IA que o gerou (coluna `fonte_ia` no Oracle).
 - **Consentimento:** o microfone só liga com o clique do veterinário, e o navegador pede permissão.
 
 ## 🔭 Próximos passos
 
 - Enviar o resumo do tutor por WhatsApp ou notificação no app (hoje é uma simulação na tela).
-- Mandar o perfil clínico completo (vacinas e comorbidades) da API Java para o ClyvoScribe.
+- Mandar o perfil clínico completo (vacinas e comorbidades) da API Java para o AuroraScribe.
 - Separar os locutores (veterinário e tutor) automaticamente no áudio.
 
 ---
@@ -273,4 +273,4 @@ IoT-Clyvo-Vet_M/
 bash scripts/package_submission.sh "https://youtu.be/LINK_DO_VIDEO"
 ```
 
-Gera `CLYVO_VET_ENTREGA_IA.zip` com o código (só os arquivos versionados) e um `ENTREGA.txt` com os integrantes e os links do vídeo e do repositório. Envie pelo portal da FIAP, dentro do prazo.
+Gera `AURORA_PET_ENTREGA_IA.zip` com o código (só os arquivos versionados) e um `ENTREGA.txt` com os integrantes e os links do vídeo e do repositório. Envie pelo portal da FIAP, dentro do prazo.
