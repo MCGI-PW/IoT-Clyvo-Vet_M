@@ -16,8 +16,8 @@ Cada requisito do Challenge, com a evidência de onde ele foi atendido. Os tempo
 | Vídeo com demonstração funcional dos principais recursos | ✅ | Demonstração real: AuroraScribe em [0:47](https://youtu.be/3mCGLHQrmjg?t=47), integração com a Aurora Pet em [2:03](https://youtu.be/3mCGLHQrmjg?t=123) |
 | Link do repositório no GitHub | ✅ | https://github.com/MCGI-PW/IoT-Clyvo-Vet_M, no `ENTREGA.txt` |
 | Código-fonte e estrutura do projeto | ✅ | [`app/`](../app), [`tests/`](../tests), [`samples/`](../samples); mapa em [Estrutura do repositório](../README.md#-estrutura-do-repositório) |
-| README com instruções de uso | ✅ | [Como executar](../README.md#-como-executar) e [Como usar a interface de demonstração](../README.md#-como-usar-a-interface-de-demonstração) |
-| README com tecnologias utilizadas | ✅ | [Tecnologias](../README.md#-tecnologias) |
+| README com instruções de uso | ✅ | [Como executar](../README.md#-como-executar) e [Como usar a interface de demonstração](../README.md#%EF%B8%8F-como-usar-a-interface-de-demonstração) |
+| README com tecnologias utilizadas | ✅ | [Tecnologias](../README.md#%EF%B8%8F-tecnologias) |
 | README com resultados parciais | ✅ | [Resultados parciais](../README.md#-resultados-parciais): Thor, Mel, Bob e consulta livre |
 
 ## Objetivos principais
@@ -37,7 +37,7 @@ Cada requisito do Challenge, com a evidência de onde ele foi atendido. Os tempo
 |---|:---:|---|
 | Desenvolver a funcionalidade de IA especificada | ✅ | Claude com saída estruturada ([`claude_extractor.py`](../app/services/claude_extractor.py)), plano B local ([`local_extractor.py`](../app/services/local_extractor.py)), regras clínicas ([`decision_support.py`](../app/services/decision_support.py)) e guia do tutor ([`tutor_care_generator.py`](../app/services/tutor_care_generator.py)) |
 | Uso da IA integrado e transparente ao usuário | ✅ | Botão "Gerar resumo com IA" no painel do veterinário e selo da fonte (`IA: AURORASCRIBE`) em [2:36](https://youtu.be/3mCGLHQrmjg?t=156) |
-| Comunicação entre interface, banco de dados, APIs e serviços inteligentes | ✅ | [Arquitetura e integração](../README.md#️-arquitetura-e-integração-com-a-aurora-pet); a API Java grava a sugestão na tabela `TRANSCRICAO_CONSULTA` ([Dicionário de dados, seção 3](DATA_DICTIONARY.md)); log real do servidor com `POST ... 200` em [2:40](https://youtu.be/3mCGLHQrmjg?t=160) |
+| Comunicação entre interface, banco de dados, APIs e serviços inteligentes | ✅ | [Arquitetura e integração](../README.md#%EF%B8%8F-arquitetura-e-integração-com-a-aurora-pet); a API Java grava a sugestão na tabela `TRANSCRICAO_CONSULTA` ([Dicionário de dados, seção 3](DATA_DICTIONARY.md)); log real do servidor com `POST ... 200` em [2:40](https://youtu.be/3mCGLHQrmjg?t=160) |
 | Testar e validar em cenários reais de uso | ✅ | 3 casos clínicos + 1 consulta livre ([`samples/`](../samples)); 14 testes passando em [4:07](https://youtu.be/3mCGLHQrmjg?t=247) |
 | Avaliar os resultados e mostrar a personalização para o tutor e o acompanhamento da saúde do pet | ✅ | [Resultados parciais](../README.md#-resultados-parciais); alertas por raça, doença crônica e vacina ([especificação, seção 3](AI_SPECIFICATION.md)) |
 
@@ -46,7 +46,7 @@ Cada requisito do Challenge, com a evidência de onde ele foi atendido. Os tempo
 | Requisito | Status | Evidência |
 |---|:---:|---|
 | Implementar a IA (IA generativa, LLM, regras ou outra abordagem) | ✅ | Arquitetura híbrida em três camadas: [Abordagem de IA](../README.md#-abordagem-de-ia) |
-| Preparar e organizar os dados, com testes e validação | ✅ | [`samples/pet_profiles.json`](../samples/pet_profiles.json), [`samples/audio_transcripts.json`](../samples/audio_transcripts.json), [Dados utilizados](../README.md#️-dados-utilizados), [Dicionário de dados](DATA_DICTIONARY.md) |
+| Preparar e organizar os dados, com testes e validação | ✅ | [`samples/pet_profiles.json`](../samples/pet_profiles.json), [`samples/audio_transcripts.json`](../samples/audio_transcripts.json), [Dados utilizados](../README.md#%EF%B8%8F-dados-utilizados), [Dicionário de dados](DATA_DICTIONARY.md) |
 | Mecanismos de integração entre aplicação, banco, APIs e IA | ✅ | Contrato da API em [Dicionário de dados, seção 3](DATA_DICTIONARY.md); [Arquitetura](ARCHITECTURE.md) |
 | Funcionalidade acessível ao usuário final e com valor para a jornada do tutor | ✅ | Painel do veterinário na Aurora Pet; prontuário que o tutor vê no painel dele, em [2:51](https://youtu.be/3mCGLHQrmjg?t=171) |
 | Evidências do funcionamento (telas, fluxos, relatórios ou demonstrações) | ✅ | [`docs/evidencias/`](evidencias) e o vídeo pitch |
