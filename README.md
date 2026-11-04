@@ -270,7 +270,9 @@ IoT-Clyvo-Vet_M/
 ## 📦 Entrega
 
 ```bash
-bash scripts/package_submission.sh "https://youtu.be/LINK_DO_VIDEO"
+bash scripts/package_submission.sh "https://youtu.be/3mCGLHQrmjg"
 ```
 
 Gera `AURORA_PET_ENTREGA_IA.zip` com o código (só os arquivos versionados) e um `ENTREGA.txt` com os integrantes e os links do vídeo e do repositório. Envie pelo portal da FIAP, dentro do prazo.
+
+O mapa de cada requisito da Sprint 4 com a sua evidência (arquivo, seção ou minuto do vídeo) está em [`docs/REQUISITOS_ENTREGA.md`](docs/REQUISITOS_ENTREGA.md).
